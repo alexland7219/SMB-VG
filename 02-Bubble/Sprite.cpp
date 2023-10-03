@@ -48,11 +48,12 @@ void Sprite::update(int deltaTime)
 	}
 }
 
-void Sprite::render() const
+void Sprite::render(bool invertX) const
 {
 	glm::mat4 modelview = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f));
 	shaderProgram->setUniformMatrix4f("modelview", modelview);
 	shaderProgram->setUniform2f("texCoordDispl", texCoordDispl.x, texCoordDispl.y);
+	shaderProgram->setUniformInt("invertX", invertX ? 1 : 0);
 	glEnable(GL_TEXTURE_2D);
 	texture->use();
 	glBindVertexArray(vao);

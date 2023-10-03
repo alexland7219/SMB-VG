@@ -116,7 +116,8 @@ void Player::update(int deltaTime)
 
 void Player::render()
 {
-	sprite->render();
+	// Always invert
+	sprite->render(false);
 }
 
 void Player::setTileMap(TileMap* tileMap)

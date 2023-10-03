@@ -74,6 +74,13 @@ void ShaderProgram::setUniform2f(const string &uniformName, float v0, float v1)
 		glUniform2f(location, v0, v1);
 }
 
+void ShaderProgram::setUniformInt(const string& uniformName, int n){
+	GLint location = glGetUniformLocation(programId, uniformName.c_str());
+
+	if (location != -1)
+		glUniform1i(location, n);
+}
+
 void ShaderProgram::setUniform3f(const string &uniformName, float v0, float v1, float v2)
 {
 	GLint location = glGetUniformLocation(programId, uniformName.c_str());
