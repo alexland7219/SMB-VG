@@ -61,6 +61,9 @@ void Sprite::render(bool invertX) const
 	glEnableVertexAttribArray(texCoordLocation);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisable(GL_TEXTURE_2D);
+
+	shaderProgram->setUniformInt("invertX", 0);
+
 }
 
 void Sprite::free()

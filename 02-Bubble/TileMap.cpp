@@ -35,7 +35,7 @@ void TileMap::render() const
 	tilesheet.use();
 	glBindVertexArray(vao);
 	glEnableVertexAttribArray(posLocation);
-	glEnableVertexAttribArray(texCoordLocation);
+	glEnableVertexAttribArray(texCoordLocation);	
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
 }
