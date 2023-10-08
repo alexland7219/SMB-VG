@@ -23,13 +23,14 @@ public:
 
 private:
 	bool bJumping;
-	glm::ivec2 tileMapDispl, posPlayer;
+	glm::ivec2 tileMapDispl;
 	int jumpAngle, startY;
 	Texture spritesheet;
 	Sprite* sprite;
 	TileMap* map;
 
 	bool bigMario;
+	glm::vec2 vel, posPlayer;
 
 };
 
