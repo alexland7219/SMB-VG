@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
-#include <iostream>
+
 void Game::init()
 {
 	bPlay = true;
@@ -42,7 +42,6 @@ void Game::specialKeyPressed(int key)
 void Game::specialKeyReleased(int key)
 {
 	specialKeys[key] = false;
-	std::cout << key << std::endl;
 }
 
 void Game::mouseMove(int x, int y)

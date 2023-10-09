@@ -19,6 +19,8 @@
 #define RUN_ACELERATION 0.3
 #define RELEASE_DECELERATION 0.08
 
+#define SHIFT_KEY 112
+
 enum PlayerAnims
 {
 	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT
@@ -29,6 +31,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	bJumping = false;
 	bigMario = false;
+	bFalling = false;
 	vel = glm::vec2(0.f, 0.f);
 
 	spritesheet.loadFromFile("images/mario128.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -76,7 +79,7 @@ void Player::update(int deltaTime)
 
 	// Increment Velocities
 	if (vel.x >= 0 and Game::instance().getSpecialKey(GLUT_KEY_RIGHT)){
-		if (Game::instance().getSpecialKey(112)){
+		if (Game::instance().getSpecialKey(SHIFT_KEY)){
 			// Running
 			vel.x += RUN_ACELERATION;
 
@@ -93,7 +96,7 @@ void Player::update(int deltaTime)
 	}
 	else if (vel.x <= 0 and Game::instance().getSpecialKey(GLUT_KEY_LEFT)){
 
-		if (not Game::instance().getSpecialKey(112)){
+		if (not Game::instance().getSpecialKey(SHIFT_KEY)){
 			// Walking acceleration
 			vel.x -= WALK_ACELERATION;
 			
@@ -120,7 +123,7 @@ void Player::update(int deltaTime)
 		}
 
 		// Check for skidding
-		if (Game::instance().getSpecialKey(GLUT_KEY_LEFT) and not bJumping){
+		if (Game::instance().getSpecialKey(GLUT_KEY_LEFT) and not bJumping and not bFalling){
 			sprite->changeAnimation(SKID_RIGHT);
 		}
 	}
@@ -134,17 +137,17 @@ void Player::update(int deltaTime)
 			if (not bJumping) sprite->changeAnimation(STAND_LEFT);
 		}
 
-		if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT) and not bJumping){
+		if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT) and not bJumping and not bFalling){
 			sprite->changeAnimation(SKID_LEFT);
 		}
 	}
 
 
-	if (vel.x > 0 and not bJumping)
+	if (vel.x > 0 and not bJumping and not bFalling)
 	{
 		if (sprite->animation() != MOVE_RIGHT and sprite->animation() != SKID_RIGHT) sprite->changeAnimation(MOVE_RIGHT);
 
-	} else if (vel.x < 0 and not bJumping)
+	} else if (vel.x < 0 and not bJumping and not bFalling)
 	{
 		if (sprite->animation() != MOVE_LEFT and sprite->animation() != SKID_LEFT) sprite->changeAnimation(MOVE_LEFT);
 
@@ -184,9 +187,11 @@ void Player::update(int deltaTime)
 	if (bJumping)
 	{
 		jumpAngle += JUMP_ANGLE_STEP;
+
 		if (jumpAngle == 180)
 		{
 			bJumping = false;
+			bFalling = true;
 			posPlayer.y = startY;
 
 			sprite->changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
@@ -195,15 +200,25 @@ void Player::update(int deltaTime)
 		{
 			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
 
-			if (jumpAngle > 90)
-				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y);
+			if (map->collisionMoveUp(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y) or jumpAngle > 90){
+				// UP COLLISION
+				bJumping = false;
+				bFalling = true;
+			}
+
 		}
 	}
 	else
 	{
 		posPlayer.y += FALL_STEP;
+
 		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y))
 		{
+			if (bFalling){
+				bFalling = false;
+				sprite->changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
+			}
+
 			if (Game::instance().getSpecialKey(GLUT_KEY_UP))
 			{
 				bJumping = true;
@@ -215,6 +230,12 @@ void Player::update(int deltaTime)
 	}
 
 	posPlayer.x += vel.x;
+
+	// Check for collisions left-right
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT)) or 
+		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT))){
+		posPlayer.x -= vel.x;
+	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
