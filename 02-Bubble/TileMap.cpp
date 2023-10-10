@@ -183,7 +183,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) c
 	return false;
 }
 
-bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY) const
+bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY)
 {
 	int x0, x1, y;
 	
@@ -194,6 +194,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 	{
 		if(map[y*mapSize.x+x] != 0)
 		{
+			//this->breakBlock(glm::ivec2(x, y));
 			return true;
 		}
 	}
@@ -225,11 +226,11 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	return false;
 }
 
-
-
-
-
-
+void TileMap::breakBlock(const glm::ivec2 pos)
+{
+	map[pos.y*mapSize.x + pos.x] = 0;
+	
+}
 
 
 

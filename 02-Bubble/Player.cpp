@@ -7,7 +7,7 @@
 
 
 #define JUMP_ANGLE_STEP 4
-#define JUMP_HEIGHT 96
+#define JUMP_HEIGHT 70
 #define FALL_STEP 4
 #define MARIO_HEIGHT (bigMario ? 32 : 16)
 #define MARIO_WIDTH 16
@@ -119,7 +119,7 @@ void Player::update(int deltaTime)
 
 		if (vel.x < MIN_WALK_SPEED){
 			vel.x = 0;
-			if (not bJumping) sprite->changeAnimation(STAND_RIGHT);
+			if (not bJumping and not bFalling) sprite->changeAnimation(STAND_RIGHT);
 		}
 
 		// Check for skidding
@@ -134,7 +134,7 @@ void Player::update(int deltaTime)
 
 		if (vel.x > -MIN_WALK_SPEED){
 			vel.x = 0;
-			if (not bJumping) sprite->changeAnimation(STAND_LEFT);
+			if (not bJumping and not bFalling) sprite->changeAnimation(STAND_LEFT);
 		}
 
 		if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT) and not bJumping and not bFalling){
@@ -194,11 +194,11 @@ void Player::update(int deltaTime)
 			bFalling = true;
 			posPlayer.y = startY;
 
-			sprite->changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
+			//sprite->changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
 		}
 		else
 		{
-			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+			posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 
 			if (map->collisionMoveUp(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y) or jumpAngle > 90){
 				// UP COLLISION
@@ -242,7 +242,6 @@ void Player::update(int deltaTime)
 
 void Player::render()
 {
-	// Always invert
 	sprite->render(false);
 }
 
