@@ -14,7 +14,7 @@ images/blocks.png 	-- Tilesheet
         3       
         3       
         3       
-    133333      
+    133335      
                 
                 
 1111111111111111

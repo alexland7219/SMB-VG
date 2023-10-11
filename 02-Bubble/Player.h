@@ -20,6 +20,7 @@ public:
 
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
+	void changeAnimation(int animId);
 
 private:
 	bool bJumping, bFalling;
@@ -27,11 +28,16 @@ private:
 	int jumpAngle, startY;
 	Texture spritesheet;
 	Sprite* sprite;
+
+	Texture spritesheetBig;
+	Sprite* bigSprite;
+
 	TileMap* map;
 
 	bool bigMario;
 	glm::vec2 vel, posPlayer;
 
+	int allowChangeTimer;
 };
 
 
