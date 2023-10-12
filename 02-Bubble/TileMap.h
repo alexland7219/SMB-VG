@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
-
+#include <vector>
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -17,11 +17,11 @@ class TileMap
 {
 
 private:
-	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, bool isbg);
 
 public:
 	// Tile maps can only be created inside an OpenGL context
-	static TileMap *createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+	static TileMap *createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, bool isbg);
 
 	~TileMap();
 
@@ -33,10 +33,10 @@ public:
 	bool collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) const;
 	bool collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY) const;
-	bool collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY);
+	bool collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool bigMario);
 
 	void breakBlock(const glm::ivec2 pos);
-	
+	void drawQuad(float left, float top, float right, float bottom) const;
 private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
@@ -52,6 +52,8 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
+	vector<float> blocksBroken;
+	bool isBackground;
 };
 
 

@@ -10,11 +10,11 @@ images/backgrounds.png 	-- Tilesheet
                 
                
                 
+        5667    
+        899:   
                 
                 
-                
-                
-        3      
-    1    ;      
-    2    2      
+        3       
+    1   ;       
+    2   2        
                 

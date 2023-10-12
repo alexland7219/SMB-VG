@@ -7,7 +7,7 @@
 
 
 #define JUMP_ANGLE_STEP 4
-#define JUMP_HEIGHT 70
+#define JUMP_HEIGHT 69
 #define FALL_STEP 4
 #define MARIO_HEIGHT (bigMario ? 32 : 16)
 #define MARIO_WIDTH 16
@@ -126,8 +126,8 @@ void Player::update(int deltaTime)
 
 		if (bigMario) posPlayer.y -= 16;
 
-		// Wait for 1 second before pressing 'M'
-		allowChangeTimer = 1000; 
+		// Wait for .5 second before pressing 'M'
+		allowChangeTimer = 500; 
 	}
 
 	allowChangeTimer -= deltaTime;
@@ -225,7 +225,7 @@ void Player::update(int deltaTime)
 		{
 			posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 
-			if (map->collisionMoveUp(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y) || jumpAngle > 90){
+			if (map->collisionMoveUp(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, bigMario) || jumpAngle > 90){
 				// UP COLLISION
 				bJumping = false;
 				bFalling = true;
@@ -246,11 +246,14 @@ void Player::update(int deltaTime)
 
 			if (Game::instance().getKey(SPACE_KEY) || Game::instance().getSpecialKey(GLUT_KEY_UP))
 			{
-				// Jump
-				bJumping = true;
-				jumpAngle = 0;
-				startY = posPlayer.y;
-				changeAnimation(vel.x >= 0 ? JUMP_RIGHT : JUMP_LEFT);
+				if (allowChangeTimer <= 0) {
+					// Jump
+					bJumping = true;
+					jumpAngle = 0;
+					startY = posPlayer.y;
+					changeAnimation(vel.x >= 0 ? JUMP_RIGHT : JUMP_LEFT);
+					allowChangeTimer = 200;
+				}
 			}
 		}
 	}
