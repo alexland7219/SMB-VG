@@ -4,7 +4,8 @@
 #include <GL/glut.h>
 #include "Player.h"
 #include "Game.h"
-
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
 
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 69
@@ -30,6 +31,8 @@ enum PlayerAnims
 
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
+	jumpMus.openFromFile("audio/jump.ogg");
+
 	bJumping = false;
 	bigMario = false;
 	bFalling = false;
@@ -248,6 +251,9 @@ void Player::update(int deltaTime)
 			{
 				if (allowChangeTimer <= 0) {
 					// Jump
+					jumpMus.play();
+        			jumpMus.setPlayingOffset(sf::Time::Zero);
+
 					bJumping = true;
 					jumpAngle = 0;
 					startY = posPlayer.y;

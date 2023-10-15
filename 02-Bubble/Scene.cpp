@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Scene.h"
 #include "Game.h"
-
+#include <SFML/Audio.hpp>
 
 #define SCREEN_X 0
 #define SCREEN_Y 0
@@ -46,6 +46,10 @@ void Scene::init()
 
 	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	currentTime = 0.0f;
+
+	defaultMus.openFromFile("audio/track1.ogg");
+	defaultMus.setLoop(true);
+	defaultMus.play();	
 }
 
 void Scene::update(int deltaTime)

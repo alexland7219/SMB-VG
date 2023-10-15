@@ -5,11 +5,11 @@ CC = g++
 CFLAGS = -std=c++11 -Wall -I/usr/include -I/usr/local/include
 
 # Linker flags
-LDFLAGS = -lGL -lGLEW -lglut -lSOIL -lGLU
+LDFLAGS = -lGL -lGLEW -lglut -lSOIL -lGLU -lsfml-audio -lsfml-system
 
 # Source files and target executable
-SOURCES = main.cpp Game.cpp Player.cpp Scene.cpp Shader.cpp ShaderProgram.cpp Sprite.cpp Texture.cpp TileMap.cpp
-HEADERS  = Game.h Player.h Scene.h Shader.h ShaderProgram.h Sprite.h Texture.h TileMap.h
+SOURCES = main.cpp Game.cpp Player.cpp Scene.cpp Shader.cpp ShaderProgram.cpp Sprite.cpp Texture.cpp TileMap.cpp Item.cpp
+HEADERS  = Game.h Player.h Scene.h Shader.h ShaderProgram.h Sprite.h Texture.h TileMap.h Item.h
 EXECUTABLE = game
 
 # Object files

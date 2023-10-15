@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "Item.h"
+#include <SFML/Audio.hpp>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -34,6 +35,8 @@ private:
 	ShaderProgram texProgram;
 	float currentTime;
 	glm::mat4 projection;
+
+	sf::Music defaultMus;
 
 };
 

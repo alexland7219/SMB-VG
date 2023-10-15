@@ -4,7 +4,7 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
-
+#include <SFML/Audio.hpp>
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
@@ -23,6 +23,7 @@ public:
 	void changeAnimation(int animId);
 
 private:
+
 	bool bJumping, bFalling;
 	glm::ivec2 tileMapDispl;
 	int jumpAngle, startY;
@@ -38,6 +39,7 @@ private:
 	glm::vec2 vel, posPlayer;
 
 	int allowChangeTimer;
+	sf::Music jumpMus;
 };
 
 
