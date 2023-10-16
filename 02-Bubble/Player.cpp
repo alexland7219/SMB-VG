@@ -32,6 +32,7 @@ enum PlayerAnims
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	jumpMus.openFromFile("audio/jump.ogg");
+	jumpMus.setVolume(20);
 
 	bJumping = false;
 	bigMario = false;

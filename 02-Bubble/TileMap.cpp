@@ -4,7 +4,6 @@
 #include <vector>
 #include "TileMap.h"
 
-
 using namespace std;
 
 
@@ -21,6 +20,7 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 	isBackground = isbg;
+	breakblock.openFromFile("audio/blockbreak.mp3");
 }
 
 TileMap::~TileMap()
@@ -278,8 +278,10 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 
 		if(map[y*mapSize.x+x] != 0)
 		{
-			if (map[y*mapSize.x + x] == 1  && bigMario)
+			if (map[y * mapSize.x + x] == 1 && bigMario) {
+				breakblock.play();
 				this->breakBlock(glm::ivec2(x, y));
+			}
 			return true;
 		}
 	}

@@ -49,7 +49,9 @@ void Scene::init()
 
 	defaultMus.openFromFile("audio/track1.ogg");
 	defaultMus.setLoop(true);
-	defaultMus.play();	
+	defaultMus.setVolume(30);
+	defaultMus.play();
+
 }
 
 void Scene::update(int deltaTime)

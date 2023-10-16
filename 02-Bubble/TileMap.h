@@ -6,6 +6,8 @@
 #include "Texture.h"
 #include "ShaderProgram.h"
 #include <vector>
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -51,6 +53,7 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
+	sf::Music breakblock;
 
 	vector<float> blocksBroken;
 	bool isBackground;
