@@ -69,10 +69,11 @@ void Scene::update(int deltaTime)
 	goomba->update(deltaTime);
 
 	glm::ivec2 playerPos = player->getPosition();
+	glm::ivec2 playerSize = player->getSize();
 
-	if (goomba->collisionStomped(playerPos, glm::ivec2(16, 16))){
+	if (goomba->collisionStomped(playerPos, playerSize)){
 		std::cout << "Goomba dead" << std::endl;
-	} else if (goomba->collisionKill(playerPos, glm::ivec2(16, 16))){
+	} else if (goomba->collisionKill(playerPos, playerSize)){
 		std::cout << "Mario dead" << std::endl;
 	}
 }

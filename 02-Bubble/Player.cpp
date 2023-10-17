@@ -305,3 +305,4 @@ void Player::setPosition(const glm::vec2& pos)
 bool Player::isDead(){ return gameOver; }
 
 glm::vec2 Player::getPosition(){ return posPlayer; }
+glm::vec2 Player::getSize(){ return glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT); }

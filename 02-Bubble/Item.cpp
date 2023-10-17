@@ -70,10 +70,6 @@ void Item::update(int deltaTime)
 
 	}
 
-	//if (!map->collisionMoveDown(posItem, glm::ivec2(ITEM_HEIGHT, ITEM_HEIGHT), &posItem.y)){
-	//	posItem.y += 3;
-	//}
-
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
 
@@ -98,7 +94,7 @@ void Item::setPosition(const glm::vec2& pos)
 }
 
 bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
-	bool above = (pos.y < posItem.y && pos.y > posItem.y - ITEM_HEIGHT);
+	bool above = (pos.y + (size.y - 16) < posItem.y && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT);
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
 	return above && intersect;
@@ -107,6 +103,6 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
-	return (pos.y <= posItem.y && pos.y >= posItem.y - 10) && intersect;
+	return (pos.y + (size.y - 16) <= posItem.y && pos.y + (size.y - 16) >= posItem.y - 10) && intersect;
 }
 

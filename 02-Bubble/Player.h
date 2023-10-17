@@ -24,6 +24,7 @@ public:
 	bool isDead();
 
 	glm::vec2 getPosition();
+	glm::vec2 getSize();
 
 private:
 
