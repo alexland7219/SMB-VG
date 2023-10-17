@@ -32,14 +32,14 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 {
 	bJumping = false;
 	bFalling = false;
-	vel = glm::vec2(0.f, 0.f);
+	vel = glm::vec2(0.5f, 0.f);
 
 	// TYPE 0: Goomba
 	spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(1);
 
-	sprite->setAnimationSpeed(WALK, 8);
+	sprite->setAnimationSpeed(WALK, 4);
 	sprite->addKeyframe(WALK, glm::vec2(0.f, 0.f));
 	sprite->addKeyframe(WALK, glm::vec2(0.25f, 0.f));
 
@@ -53,14 +53,20 @@ void Item::update(int deltaTime)
 	sprite->update(deltaTime);
 
 
-	posItem.x += 4;
+	posItem.x += vel.x;
 
 
 	// Check for collisions left-right
 	if (map->collisionMoveRight(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT)) ||
 		map->collisionMoveLeft(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT))) {
 		posItem.x -= vel.x;
+		vel.x = -vel.x;
+
 	}
+
+	//if (!map->collisionMoveDown(posItem, glm::ivec2(ITEM_HEIGHT, ITEM_HEIGHT), &posItem.y)){
+	//	posItem.y += 3;
+	//}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
@@ -85,6 +91,16 @@ void Item::setPosition(const glm::vec2& pos)
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
 
+bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
+	bool above = (pos.y < posItem.y && pos.y > posItem.y - ITEM_HEIGHT);
+	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
+	return above && intersect;
+}
 
+bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
+	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
+
+	return (pos.y <= posItem.y && pos.y >= posItem.y - 10) && intersect;
+}
 

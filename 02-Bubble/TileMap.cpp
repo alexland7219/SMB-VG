@@ -4,6 +4,7 @@
 #include <vector>
 #include "TileMap.h"
 
+
 using namespace std;
 
 
@@ -20,7 +21,7 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 	isBackground = isbg;
-	breakblock.openFromFile("audio/blockbreak.mp3");
+	breakblock.openFromFile("audio/blockbreak.ogg");
 }
 
 TileMap::~TileMap()

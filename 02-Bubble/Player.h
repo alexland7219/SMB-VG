@@ -21,6 +21,9 @@ public:
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
 	void changeAnimation(int animId);
+	bool isDead();
+
+	glm::vec2 getPosition();
 
 private:
 
@@ -35,7 +38,7 @@ private:
 
 	TileMap* map;
 
-	bool bigMario;
+	bool bigMario, gameOver;
 	glm::vec2 vel, posPlayer;
 
 	int allowChangeTimer;

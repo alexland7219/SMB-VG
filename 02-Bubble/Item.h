@@ -19,6 +19,8 @@ public:
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
 	void changeAnimation(int animId);
+	bool collisionStomped(const glm::ivec2& posPlayer, glm::ivec2 sizes);
+	bool collisionKill(const glm::ivec2& posPlayer, glm::ivec2 sizes);
 
 private:
 	bool bJumping, bFalling;

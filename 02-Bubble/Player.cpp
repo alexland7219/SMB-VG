@@ -33,10 +33,11 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	jumpMus.openFromFile("audio/jump.ogg");
 	jumpMus.setVolume(20);
-
+	
 	bJumping = false;
 	bigMario = false;
 	bFalling = false;
+	gameOver = false;
 	allowChangeTimer = 0;
 	vel = glm::vec2(0.f, 0.f);
 
@@ -301,6 +302,6 @@ void Player::setPosition(const glm::vec2& pos)
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
+bool Player::isDead(){ return gameOver; }
 
-
-
+glm::vec2 Player::getPosition(){ return posPlayer; }
