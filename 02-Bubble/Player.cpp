@@ -25,7 +25,7 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT
+	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT, DEATH
 };
 
 
@@ -33,6 +33,9 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	jumpMus.openFromFile("audio/jump.ogg");
 	jumpMus.setVolume(20);
+
+	deathMus.openFromFile("audio/death.ogg");
+	deathMus.setVolume(100);
 	
 	bJumping = false;
 	bigMario = false;
@@ -44,7 +47,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	// Small Mario
 	spritesheet.loadFromFile("images/mario128.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(8);
+	sprite->setNumberAnimations(9);
 
 	sprite->setAnimationSpeed(STAND_LEFT, 8);
 	sprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.f));
@@ -74,6 +77,9 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setAnimationSpeed(JUMP_LEFT, 8);
 	sprite->addKeyframe(JUMP_LEFT, glm::vec2(0.5f, 0.125f));
 
+
+	sprite->setAnimationSpeed(DEATH, 1);
+	sprite->addKeyframe(DEATH, glm::vec2(0.25f, 0.125f));
 
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -122,6 +128,19 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 void Player::update(int deltaTime)
 {
+	if (deadAnimStart){
+		deadAnimCounter -= deltaTime;
+
+		if (deadAnimCounter < 0) posPlayer.y += 1;
+		else if (deadAnimCounter < 300) posPlayer.y -= 1;
+		
+		sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+
+		if (posPlayer.y > 256) gameOver = true;
+
+		return;
+	}
+
 	if (!bigMario) sprite->update(deltaTime);
 	else bigSprite->update(deltaTime);
 
@@ -300,6 +319,20 @@ void Player::setPosition(const glm::vec2& pos)
 	posPlayer = pos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+}
+
+void Player::die(){
+	if (deadAnimStart) return; // Cannot die twice
+
+	// Initiate animation to die
+	bigMario = false;
+	deadAnimStart = true;
+	deadAnimCounter = 600;
+	changeAnimation(DEATH);
+	// Play death sound
+	deathMus.play();
+	deathMus.setPlayingOffset(sf::Time::Zero);
+
 }
 
 bool Player::isDead(){ return gameOver; }

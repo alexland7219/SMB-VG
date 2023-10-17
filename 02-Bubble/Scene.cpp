@@ -55,6 +55,8 @@ void Scene::init()
 	defaultMus.setVolume(30);
 	defaultMus.play();
 
+
+	playerDeathStarted = false;
 }
 
 void Scene::update(int deltaTime)
@@ -66,15 +68,17 @@ void Scene::update(int deltaTime)
 	}
 
 	player->update(deltaTime);
-	goomba->update(deltaTime);
+	if (!goomba->isDead()) goomba->update(deltaTime);
 
 	glm::ivec2 playerPos = player->getPosition();
 	glm::ivec2 playerSize = player->getSize();
 
-	if (goomba->collisionStomped(playerPos, playerSize)){
-		std::cout << "Goomba dead" << std::endl;
+	if (goomba->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
+		goomba->die();
 	} else if (goomba->collisionKill(playerPos, playerSize)){
-		std::cout << "Mario dead" << std::endl;
+		// Death
+		player->die();
+		playerDeathStarted = true;
 	}
 }
 
@@ -95,7 +99,7 @@ void Scene::render()
 	bgmap->render();
 	map->render();
 	player->render();
-	goomba->render();
+	if (!goomba->isDead()) goomba->render();
 }
 
 void Scene::initShaders()

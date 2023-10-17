@@ -22,6 +22,7 @@ public:
 	void setPosition(const glm::vec2& pos);
 	void changeAnimation(int animId);
 	bool isDead();
+	void die();
 
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
@@ -39,11 +40,11 @@ private:
 
 	TileMap* map;
 
-	bool bigMario, gameOver;
+	bool bigMario, gameOver, deadAnimStart;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer;
-	sf::Music jumpMus;
+	int allowChangeTimer, deadAnimCounter;
+	sf::Music jumpMus, deathMus;
 };
 
 

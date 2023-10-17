@@ -37,7 +37,7 @@ private:
 	glm::mat4 projection;
 
 	sf::Music defaultMus;
-
+	bool playerDeathStarted;
 };
 
 

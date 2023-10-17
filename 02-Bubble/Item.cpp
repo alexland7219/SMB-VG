@@ -24,7 +24,7 @@
 
 enum ItemAnims
 {
-	WALK
+	WALK, DEATH
 };
 
 
@@ -32,16 +32,20 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 {
 	bJumping = false;
 	bFalling = false;
+	itemKO = false;
 	vel = glm::vec2(0.5f, 0.f);
 
 	// TYPE 0: Goomba
 	spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(1);
+	sprite->setNumberAnimations(2);
 
 	sprite->setAnimationSpeed(WALK, 4);
 	sprite->addKeyframe(WALK, glm::vec2(0.f, 0.f));
 	sprite->addKeyframe(WALK, glm::vec2(0.25f, 0.f));
+
+	sprite->setAnimationSpeed(DEATH, 1);
+	sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.f));
 
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -50,8 +54,13 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 
 void Item::update(int deltaTime)
 {
-	sprite->update(deltaTime);
+	if (deadAnimStart){
+		deadAnimCounter -= deltaTime;
+		if (deadAnimCounter < 0) itemKO = true; 
+		return;
+	}
 
+	sprite->update(deltaTime);
 
 	posItem.x += vel.x;
 
@@ -94,6 +103,8 @@ void Item::setPosition(const glm::vec2& pos)
 }
 
 bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
+	if (deadAnimStart) return false;
+
 	bool above = (pos.y + (size.y - 16) < posItem.y && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT);
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
@@ -101,8 +112,21 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 }
 
 bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
+	if (deadAnimStart) return false;
+
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
 	return (pos.y + (size.y - 16) <= posItem.y && pos.y + (size.y - 16) >= posItem.y - 10) && intersect;
 }
+
+void Item::die(){
+	// Type 0: goomba death
+	deadAnimStart = true;
+	deadAnimCounter = 400;
+
+	sprite->changeAnimation(DEATH);
+
+}
+
+bool Item::isDead(){ return itemKO; }
 

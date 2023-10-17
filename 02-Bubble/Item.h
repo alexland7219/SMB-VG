@@ -22,12 +22,18 @@ public:
 	bool collisionStomped(const glm::ivec2& posPlayer, glm::ivec2 sizes);
 	bool collisionKill(const glm::ivec2& posPlayer, glm::ivec2 sizes);
 
+	void die();
+	bool isDead();
+
 private:
 	bool bJumping, bFalling;
 	glm::ivec2 tileMapDispl;
 	int jumpAngle, startY;
 	Texture spritesheet;
 	Sprite* sprite;
+
+	bool deadAnimStart, itemKO;
+	int deadAnimCounter;
 
 	TileMap* map;
 
