@@ -37,7 +37,7 @@ void Scene::init()
 
 	goomba = new Item();
 	goomba->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
-	goomba->setPosition(glm::vec2(5 * map->getTileSize(), 13 * map->getTileSize()));
+	goomba->setPosition(glm::vec2(10 * map->getTileSize(), 10 * map->getTileSize()));
 	goomba->setTileMap(map);
 
 

@@ -8,7 +8,7 @@
 
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 69
-#define FALL_STEP 4
+#define FALL_STEP 3
 #define ITEM_HEIGHT 16
 #define ITEM_WIDTH 16
 
@@ -61,6 +61,12 @@ void Item::update(int deltaTime)
 		map->collisionMoveLeft(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT))) {
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
+
+	}
+
+	posItem.y += FALL_STEP;
+
+	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y)){
 
 	}
 
