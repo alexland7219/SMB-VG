@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
+#include "Block.h"
 #include <vector>
 #include <SFML/Audio.hpp>
 #include <SFML/System.hpp>
@@ -28,6 +29,7 @@ public:
 	~TileMap();
 
 	void render() const;
+	void update(int deltatime);
 	void free();
 	
 	int getTileSize() const { return tileSize; }
@@ -47,12 +49,15 @@ private:
 	GLuint vao;
 	GLuint vbo;
 	GLint posLocation, texCoordLocation;
+	ShaderProgram texProgram;
 	int nTiles;
 	glm::ivec2 position, mapSize, tilesheetSize;
 	int tileSize, blockSize;
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
+	Block ** blockMatrix;
+
 	sf::Music breakblock;
 
 	vector<float> blocksBroken;

@@ -62,6 +62,9 @@ void Scene::init()
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+
+	map->update(deltaTime);
+
 	if (player->isDead()){
 		// Game Over
 		exit(0);

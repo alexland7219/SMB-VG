@@ -18,9 +18,10 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, bool isbg)
 {
+	texProgram = program;
+	isBackground = isbg;
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
-	isBackground = isbg;
 	breakblock.openFromFile("audio/blockbreak.ogg");
 }
 
@@ -36,8 +37,7 @@ void TileMap::render() const
 	glEnable(GL_TEXTURE_2D);
 	tilesheet.use();
 	
-	// Draw blocks to exclude to the stencil
-	if (!isBackground){
+	/*if (!isBackground){
 
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -58,7 +58,7 @@ void TileMap::render() const
 		glStencilFunc(GL_EQUAL, 0, 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
-	}
+	}*/
 
 	glBindVertexArray(vao);
 	glEnableVertexAttribArray(posLocation);
@@ -66,6 +66,22 @@ void TileMap::render() const
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_STENCIL_TEST);
+
+	if (!isBackground)
+		for(int j=0; j<mapSize.y; j++)
+			for(int i=0; i<mapSize.x; i++)
+				if (map[j*mapSize.x+i] < 0)
+					blockMatrix[j*mapSize.x+i]->render();
+
+}
+
+void TileMap::update(int deltaTime){
+	if (!isBackground)
+		for(int j=0; j<mapSize.y; j++)
+			for(int i=0; i<mapSize.x; i++)
+				if (map[j*mapSize.x+i] < 0)
+					blockMatrix[j*mapSize.x+i]->update(deltaTime);
+
 }
 
 void TileMap::drawQuad(float left, float top, float right, float bottom) const 
@@ -148,14 +164,37 @@ bool TileMap::loadLevel(const string &levelFile)
 	tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 	
 	map = new int[mapSize.x * mapSize.y];
+	if (!isBackground) blockMatrix = new Block*[mapSize.x * mapSize.y];
+
+
 	for(int j=0; j<mapSize.y; j++)
 	{
 		for(int i=0; i<mapSize.x; i++)
 		{
 			fin.get(tile);
-			if(tile == ' ')
+
+			if (!isBackground){
+				switch(tile) {
+					case ' ':
+						// No block
+						map[j*mapSize.x+i] = 0;
+						break;
+					case '1':
+					case '2':
+					case '5':
+						// Dynamic block (breakable, question, coin)
+						map[j*mapSize.x+i] = int('0') - tile; // Negative to mark dynamic block
+						blockMatrix[j*mapSize.x+i] = new Block();
+						blockMatrix[j*mapSize.x+i]->init(glm::vec2(i*tileSize, j*tileSize), texProgram, tile - int('0'));
+						break;
+					default:
+						// Static block
+						map[j*mapSize.x+i] = tile - int('0');
+				}
+			}
+			else if(tile == ' ') // If its a blank background
 				map[j*mapSize.x+i] = 0;
-			else
+			else				// Background with tile
 				map[j*mapSize.x+i] = tile - int('0');
 		}
 		fin.get(tile);
@@ -164,7 +203,6 @@ bool TileMap::loadLevel(const string &levelFile)
 #endif
 	}
 	fin.close();
-	
 	return true;
 }
 
@@ -181,7 +219,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		for(int i=0; i<mapSize.x; i++)
 		{
 			tile = map[j * mapSize.x + i];
-			if(tile != 0)
+			if(tile > 0)
 			{
 				// Non-empty tile
 				nTiles++;
