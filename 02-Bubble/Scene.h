@@ -28,6 +28,8 @@ private:
 	void initShaders();
 
 private:
+	glm::vec4 camera; // Left, Right, Bottom, Up
+
 	TileMap* map;
 	TileMap* bgmap;
 	Player* player;

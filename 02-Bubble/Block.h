@@ -2,6 +2,8 @@
 #define _BLOCK_INCLUDE
 
 #include "Sprite.h"
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
 
 class Block 
 {
@@ -10,7 +12,11 @@ class Block
     void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int type);
     void update(int deltaTime);
     void render();
+    void breakBlock();
+    bool isBroken();
+    void collectCoin();
 
+    void bumpBlock();
 	void setPosition(const glm::vec2& pos);
 
     private:
@@ -19,6 +25,9 @@ class Block
     glm::ivec2 tileMapDispl;
     Texture spritesheet;
     Sprite* sprite;
+    int animTimer;
+    bool animBump;
+	sf::Music breakblock, coinMus;
 
     bool blockKO;
 

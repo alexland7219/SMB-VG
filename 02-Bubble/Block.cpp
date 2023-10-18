@@ -18,6 +18,11 @@ enum BlockTypes
 
 void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int type)
 {
+	breakblock.openFromFile("audio/blockbreak.ogg");
+	coinMus.openFromFile("audio/coin.ogg");
+    coinMus.setVolume(20);
+    breakblock.setVolume(200);
+
     blockKO = false;
     blockType = type;
     vel = glm::vec2(0.f, 0.f);
@@ -57,6 +62,14 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
 }
 
 void Block::update(int deltaTime){
+    if (animBump){
+        if (animTimer > 100) posItem.y -= 1;
+        else if (animTimer > 0) posItem.y += 1;
+        else animBump = 0;
+
+        animTimer -= deltaTime;
+    }
+
     posItem.x += vel.x;
 
     sprite->update(deltaTime);
@@ -67,11 +80,35 @@ void Block::update(int deltaTime){
 
 void Block::render()
 {
-	sprite->render(false);
+	if (!blockKO) sprite->render(false);
 }
 
 void Block::setPosition(const glm::vec2& pos)
 {
 	posItem = pos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+}
+
+void Block::breakBlock()
+{
+    blockKO = true;
+    breakblock.play();
+    breakblock.setPlayingOffset(sf::Time::Zero);
+
+}
+
+bool Block::isBroken(){ return blockKO; }
+
+void Block::bumpBlock(){
+    if (animBump) return;
+    // Move the sprite 3px up and 3px down in the span of .5 seconds
+    animTimer = 200;
+    animBump = true;
+}
+
+void Block::collectCoin(){
+    blockKO = true;
+    coinMus.play();
+    coinMus.setPlayingOffset(sf::Time::Zero);
+
 }

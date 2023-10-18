@@ -7,8 +7,6 @@
 #include "ShaderProgram.h"
 #include "Block.h"
 #include <vector>
-#include <SFML/Audio.hpp>
-#include <SFML/System.hpp>
 
 // Class Tilemap is capable of loading a tile map from a text file in a very
 // simple format (see level01.txt for an example). With this information
@@ -40,12 +38,12 @@ public:
 	bool collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool bigMario);
 
 	void breakBlock(const glm::ivec2 pos);
-	void drawQuad(float left, float top, float right, float bottom) const;
 private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
 private:
+
 	GLuint vao;
 	GLuint vbo;
 	GLint posLocation, texCoordLocation;
@@ -57,8 +55,6 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 	Block ** blockMatrix;
-
-	sf::Music breakblock;
 
 	vector<float> blocksBroken;
 	bool isBackground;
