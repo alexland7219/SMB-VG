@@ -46,8 +46,8 @@ void Scene::init()
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
 
-
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
+	camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
+	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
 	currentTime = 0.0f;
 
 	defaultMus.openFromFile("audio/track1.ogg");
@@ -62,10 +62,15 @@ void Scene::init()
 void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
+
+	map->update(deltaTime);
+
 	if (player->isDead()){
 		// Game Over
 		exit(0);
 	}
+	
+	glm::ivec2 playerPosAnt = player->getPosition();
 
 	player->update(deltaTime);
 	if (!goomba->isDead()) goomba->update(deltaTime);
@@ -80,6 +85,14 @@ void Scene::update(int deltaTime)
 		player->die();
 		playerDeathStarted = true;
 	}
+
+	// Scroll to the right (bottom and up stay the same)
+	if (playerPos.x > 2*(SCREEN_WIDTH + camera.x) / 3 && playerPos.x - playerPosAnt.x > 0){
+		camera.x += (playerPos.x - playerPosAnt.x);
+		camera.y += (playerPos.x - playerPosAnt.x);
+		projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
+	}
+
 }
 
 void Scene::render()

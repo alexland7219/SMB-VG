@@ -4,7 +4,6 @@
 #include <vector>
 #include "TileMap.h"
 
-
 using namespace std;
 
 
@@ -18,10 +17,11 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, bool isbg)
 {
+	texProgram = program;
+	isBackground = isbg;
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
-	isBackground = isbg;
-	breakblock.openFromFile("audio/blockbreak.ogg");
+
 }
 
 TileMap::~TileMap()
@@ -35,79 +35,28 @@ void TileMap::render() const
 {
 	glEnable(GL_TEXTURE_2D);
 	tilesheet.use();
-	
-	// Draw blocks to exclude to the stencil
-	if (!isBackground){
-
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glClear(GL_STENCIL_BUFFER_BIT);
-		glStencilMask(0xFF);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-
-		// Drawing all quads
-		for (int i = 0; i < blocksBroken.size(); i += 4){
-			drawQuad(blocksBroken[i], blocksBroken[i+1], blocksBroken[i+2], blocksBroken[i+3]);
-		}
-
-		glStencilMask(0x00);
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-		glStencilFunc(GL_EQUAL, 0, 0xFF);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-	}
-
 	glBindVertexArray(vao);
 	glEnableVertexAttribArray(posLocation);
 	glEnableVertexAttribArray(texCoordLocation);	
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_STENCIL_TEST);
+
+	if (!isBackground)
+		for(int j=0; j<mapSize.y; j++)
+			for(int i=0; i<mapSize.x; i++)
+				if (map[j*mapSize.x+i] < 0)
+					blockMatrix[j*mapSize.x+i]->render();
+
 }
 
-void TileMap::drawQuad(float left, float top, float right, float bottom) const 
-{
-    // Define the vertices for the quad
-    float vertices[] = {
-        left,  top,    // Top-left vertex
-        right, top,    // Top-right vertex
-        right, bottom, // Bottom-right vertex
-        left,  bottom  // Bottom-left vertex
-    };
+void TileMap::update(int deltaTime){
+	if (!isBackground)
+		for(int j=0; j<mapSize.y; j++)
+			for(int i=0; i<mapSize.x; i++)
+				if (map[j*mapSize.x+i] < 0)
+					blockMatrix[j*mapSize.x+i]->update(deltaTime);
 
-
-    // Create and bind a VAO (Vertex Array Object)
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    // Create and bind a VBO (Vertex Buffer Object)
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    // Fill the VBO with vertex data
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Set up vertex attributes (position in this case)
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(posLocation);
-
-    // Unbind the VBO and VAO (keep the EBO bound if used)
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    // Render the quad
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Draw the quad using a triangle fan
-    glBindVertexArray(0);
-
-    // Clean up (delete the VAO, VBO, and EBO if used)
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
 }
 
 void TileMap::free()
@@ -148,14 +97,37 @@ bool TileMap::loadLevel(const string &levelFile)
 	tileTexSize = glm::vec2(1.f / tilesheetSize.x, 1.f / tilesheetSize.y);
 	
 	map = new int[mapSize.x * mapSize.y];
+	if (!isBackground) blockMatrix = new Block*[mapSize.x * mapSize.y];
+
+
 	for(int j=0; j<mapSize.y; j++)
 	{
 		for(int i=0; i<mapSize.x; i++)
 		{
 			fin.get(tile);
-			if(tile == ' ')
+
+			if (!isBackground){
+				switch(tile) {
+					case '-':
+						// No block
+						map[j*mapSize.x+i] = 0;
+						break;
+					case '1':
+					case '2':
+					case '5':
+						// Dynamic block (breakable, question, coin)
+						map[j*mapSize.x+i] = int('0') - tile; // Negative to mark dynamic block
+						blockMatrix[j*mapSize.x+i] = new Block();
+						blockMatrix[j*mapSize.x+i]->init(glm::vec2(i*tileSize, j*tileSize), texProgram, tile - int('0'));
+						break;
+					default:
+						// Static block
+						map[j*mapSize.x+i] = tile - int('0');
+				}
+			}
+			else if(tile == '-') // If its a blank background
 				map[j*mapSize.x+i] = 0;
-			else
+			else				// Background with tile
 				map[j*mapSize.x+i] = tile - int('0');
 		}
 		fin.get(tile);
@@ -164,7 +136,6 @@ bool TileMap::loadLevel(const string &levelFile)
 #endif
 	}
 	fin.close();
-	
 	return true;
 }
 
@@ -181,7 +152,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		for(int i=0; i<mapSize.x; i++)
 		{
 			tile = map[j * mapSize.x + i];
-			if(tile != 0)
+			if(tile > 0)
 			{
 				// Non-empty tile
 				nTiles++;
@@ -230,12 +201,13 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) co
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{
-		if (map[y*mapSize.x + x] == 2){
+		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
 
-		if(map[y*mapSize.x+x] != 0)
+		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
 			return true;
 	}
 	
@@ -251,12 +223,14 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) c
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{		
-		if (map[y*mapSize.x + x] == 2){
+		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			blockMatrix[y * mapSize.x + x]->collectCoin();
+
 			continue;
 		}
 
-		if(map[y*mapSize.x+x] != 0)
+		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
 			return true;
 	}
 	
@@ -267,21 +241,27 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 {
 	int x0, x1, y;
 	
-	x0 = pos.x / tileSize;
-	x1 = (pos.x + size.x - 1) / tileSize;
+	x0 = (pos.x + 3) / tileSize;
+	x1 = (pos.x + size.x - 3) / tileSize;
 	y = pos.y / tileSize;
+
 	for(int x=x0; x<=x1; x++)
 	{	
-		if (map[y*mapSize.x + x] == 2){
+		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			blockMatrix[y * mapSize.x + x]->collectCoin();
+
 			continue;
 		}
 
-		if(map[y*mapSize.x+x] != 0)
+		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
 		{
-			if (map[y * mapSize.x + x] == 1 && bigMario) {
-				breakblock.play();
-				this->breakBlock(glm::ivec2(x, y));
+			if (map[y * mapSize.x + x] == -1 && bigMario) {
+				blockMatrix[y * mapSize.x + x]->breakBlock();
+			} else if (map[y * mapSize.x + x] == -1){
+				// Small mario bumps
+				blockMatrix[y * mapSize.x + x]->bumpBlock();
+
 			}
 			return true;
 		}
@@ -301,12 +281,13 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	y = (pos.y + size.y - 1) / tileSize;
 	for(int x=x0; x<=x1; x++)
 	{
-		if (map[y*mapSize.x + x] == 2){
+		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
 
-		if(map[y*mapSize.x+x] != 0)
+		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
 		{
 			if(*posY - tileSize * y + size.y <= 4)
 			{
@@ -317,18 +298,4 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	}
 	
 	return false;
-}
-
-void TileMap::breakBlock(const glm::ivec2 pos)
-{
-	glm::vec2 posTile;
-	posTile = glm::vec2(pos.x * tileSize, pos.y * tileSize);
-
-	map[pos.y*mapSize.x + pos.x] = 0; // Disables collision
-
-	blocksBroken.push_back(posTile.x);
-	blocksBroken.push_back(posTile.y + blockSize);
-	blocksBroken.push_back(posTile.x + blockSize);
-	blocksBroken.push_back(posTile.y);
-
 }
