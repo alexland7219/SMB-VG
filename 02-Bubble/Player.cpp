@@ -8,7 +8,6 @@
 #include <SFML/System.hpp>
 
 #define JUMP_ANGLE_STEP 4
-#define JUMP_HEIGHT 69
 #define FALL_STEP 4
 #define MARIO_HEIGHT (bigMario ? 32 : 16)
 #define MARIO_WIDTH 16
@@ -18,7 +17,7 @@
 #define MAX_RUN_SPEED 2.1
 #define WALK_ACELERATION 0.15
 #define RUN_ACELERATION 0.3
-#define RELEASE_DECELERATION 0.08
+#define RELEASE_DECELERATION 0.06
 
 #define SHIFT_KEY 112
 #define SPACE_KEY 32
@@ -43,6 +42,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	gameOver = false;
 	allowChangeTimer = 0;
 	vel = glm::vec2(0.f, 0.f);
+	jumpHeight = 69;
 
 	// Small Mario
 	spritesheet.loadFromFile("images/mario128.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -247,7 +247,7 @@ void Player::update(int deltaTime)
 		}
 		else
 		{
-			posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+			posPlayer.y = int(startY - jumpHeight * sin(3.14159f * jumpAngle / 180.f));
 
 			if (map->collisionMoveUp(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, bigMario) || jumpAngle > 90){
 				// UP COLLISION
@@ -275,11 +275,7 @@ void Player::update(int deltaTime)
 					jumpMus.play();
         			jumpMus.setPlayingOffset(sf::Time::Zero);
 
-					bJumping = true;
-					jumpAngle = 0;
-					startY = posPlayer.y;
-					changeAnimation(vel.x >= 0 ? JUMP_RIGHT : JUMP_LEFT);
-					allowChangeTimer = 200;
+					jump(69);
 				}
 			}
 		}
@@ -332,6 +328,17 @@ void Player::die(){
 	// Play death sound
 	deathMus.play();
 	deathMus.setPlayingOffset(sf::Time::Zero);
+
+}
+
+void Player::jump(int height){
+	jumpHeight = height;
+
+	bJumping = true;
+	jumpAngle = 0;
+	startY = posPlayer.y;
+	changeAnimation(vel.x >= 0 ? JUMP_RIGHT : JUMP_LEFT);
+	allowChangeTimer = 200;
 
 }
 

@@ -82,6 +82,7 @@ void Scene::update(int deltaTime)
 
 	if (goomba->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
 		goomba->die();
+		player->jump(30);
 	} else if (goomba->collisionKill(playerPos, playerSize)){
 		// Death
 		player->die();

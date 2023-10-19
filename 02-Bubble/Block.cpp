@@ -13,7 +13,8 @@ enum BlockTypes
 {
     T_COIN = 2,
     T_BREAKABLE = 1,
-    T_QUESTION = 5
+    T_QUESTION = 5,
+    T_UNBREAKABLE = 10,
 };
 
 void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int type)
@@ -64,7 +65,13 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
 void Block::update(int deltaTime){
     if (animBump){
         if (animTimer > 100) posItem.y -= 1;
-        else if (animTimer > 0) posItem.y += 1;
+        else if (animTimer > 0){
+            posItem.y += 1;
+            if (blockType == T_QUESTION){
+                sprite->changeAnimation(UNBREAKABLE);
+                blockType = T_UNBREAKABLE;
+            } 
+        }
         else animBump = 0;
 
         animTimer -= deltaTime;
@@ -101,6 +108,7 @@ bool Block::isBroken(){ return blockKO; }
 
 void Block::bumpBlock(){
     if (animBump) return;
+    if (blockType == T_UNBREAKABLE) return;
     // Move the sprite 3px up and 3px down in the span of .5 seconds
     animTimer = 200;
     animBump = true;

@@ -261,7 +261,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 		else if (map[y*mapSize.x+x] > 0){
 			if (map[y * mapSize.x + x] == -1 && bigMario) {
 				blockMatrix[y * mapSize.x + x]->breakBlock();
-			} else if (map[y * mapSize.x + x] == -1){
+			} else if (map[y * mapSize.x + x] == -1 || map[y * mapSize.x + x] == -5 ){
 				// Small mario bumps
 				blockMatrix[y * mapSize.x + x]->bumpBlock();
 			}
@@ -272,7 +272,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 				if (map[y * mapSize.x + x] == -1 && bigMario) {
 					blockMatrix[y * mapSize.x + x]->breakBlock();
-				} else if (map[y * mapSize.x + x] == -1){
+				} else if (map[y * mapSize.x + x] == -1 || map[y * mapSize.x + x] == -5){
 					// Small mario bumps
 					blockMatrix[y * mapSize.x + x]->bumpBlock();
 				}

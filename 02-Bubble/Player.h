@@ -23,6 +23,7 @@ public:
 	void changeAnimation(int animId);
 	bool isDead();
 	void die();
+	void jump(int height);
 
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
@@ -31,7 +32,7 @@ private:
 
 	bool bJumping, bFalling;
 	glm::ivec2 tileMapDispl;
-	int jumpAngle, startY;
+	int jumpAngle, startY, jumpHeight;
 	Texture spritesheet;
 	Sprite* sprite;
 
