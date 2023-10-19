@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Player.h"
+#include "Texture.h"
 #include "Item.h"
 #include <SFML/Audio.hpp>
 
@@ -26,6 +27,8 @@ public:
 
 private:
 	void initShaders();
+	void initGlyphTextures();
+	void renderText(const char * text, glm::vec2 pos);
 
 private:
 	glm::vec4 camera; // Left, Right, Bottom, Up
@@ -35,6 +38,10 @@ private:
 	Player* player;
 	Item* goomba;
 	ShaderProgram texProgram;
+
+	Texture textSpriteSheet;
+	Sprite* textSprite;
+
 	float currentTime;
 	glm::mat4 projection;
 
