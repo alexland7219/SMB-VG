@@ -92,8 +92,9 @@ void Scene::update(int deltaTime)
 	if (playerPos.x <= camera.x && playerPos.x - playerPosAnt.x < 0){
 		player->setPosition(glm::vec2(camera.x, playerPos.y));
 	}
+
 	// Scroll to the right (bottom and up stay the same)
-	if (playerPos.x > 2*(SCREEN_WIDTH + camera.x) / 3 && playerPos.x - playerPosAnt.x > 0){
+	if (playerPos.x > camera.x + 2*SCREEN_WIDTH / 3 && playerPos.x - playerPosAnt.x > 0){
 		camera.x += (playerPos.x - playerPosAnt.x);
 		camera.y += (playerPos.x - playerPosAnt.x);
 		projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);

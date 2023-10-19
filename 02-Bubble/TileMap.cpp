@@ -111,6 +111,7 @@ bool TileMap::loadLevel(const string &levelFile)
 					case '-':
 						// No block
 						map[j*mapSize.x+i] = 0;
+						blockMatrix[j*mapSize.x+i] = NULL;
 						break;
 					case '1':
 					case '2':
@@ -122,6 +123,7 @@ bool TileMap::loadLevel(const string &levelFile)
 						break;
 					default:
 						// Static block
+						blockMatrix[j*mapSize.x+i] = NULL;
 						map[j*mapSize.x+i] = tile - int('0');
 				}
 			}
@@ -206,9 +208,11 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) co
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
-
-		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
-			return true;
+		else if (map[y*mapSize.x+x] > 0) return true;
+		else if (blockMatrix[y*mapSize.x + x] != NULL) 
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+				return true;
+		
 	}
 	
 	return false;
@@ -229,9 +233,10 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) c
 
 			continue;
 		}
-
-		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
-			return true;
+		else if (map[y*mapSize.x+x] > 0) return true;
+		else if (blockMatrix[y*mapSize.x + x] != NULL) 
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+				return true;
 	}
 	
 	return false;
@@ -253,18 +258,28 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 
 			continue;
 		}
-
-		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
-		{
+		else if (map[y*mapSize.x+x] > 0){
 			if (map[y * mapSize.x + x] == -1 && bigMario) {
 				blockMatrix[y * mapSize.x + x]->breakBlock();
 			} else if (map[y * mapSize.x + x] == -1){
 				// Small mario bumps
 				blockMatrix[y * mapSize.x + x]->bumpBlock();
-
 			}
 			return true;
+
 		}
+		else if (blockMatrix[y*mapSize.x + x] != NULL){
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+				if (map[y * mapSize.x + x] == -1 && bigMario) {
+					blockMatrix[y * mapSize.x + x]->breakBlock();
+				} else if (map[y * mapSize.x + x] == -1){
+					// Small mario bumps
+					blockMatrix[y * mapSize.x + x]->bumpBlock();
+				}
+				return true;
+			}
+		}
+
 	}
 	
 	return false;
@@ -286,15 +301,22 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
-
-		if((map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()) || (map[y*mapSize.x+x] > 0))
-		{
+		else if (map[y*mapSize.x+x] > 0) {
 			if(*posY - tileSize * y + size.y <= 4)
 			{
 				*posY = tileSize * y - size.y;
 				return true;
 			}
+		} else if (blockMatrix[y * mapSize.x + x] != NULL){
+			if (map[y*mapSize.x + x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+				if(*posY - tileSize * y + size.y <= 4)
+				{
+					*posY = tileSize * y - size.y;
+					return true;
+				}
+			}
 		}
+
 	}
 	
 	return false;
