@@ -32,12 +32,14 @@ public:
 	
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY) const;
+	bool collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size);
+	bool collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size);
+	bool collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY);
 	bool collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool bigMario);
 
 	void breakBlock(const glm::ivec2 pos);
+	int getTotalCoins();
+
 private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
@@ -54,6 +56,7 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
+	int nCoins;
 	Block ** blockMatrix;
 
 	vector<float> blocksBroken;

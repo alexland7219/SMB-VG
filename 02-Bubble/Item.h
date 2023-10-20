@@ -24,6 +24,10 @@ public:
 
 	void die();
 	bool isDead();
+	glm::vec2 getPosition();
+	glm::vec2 getSize();
+
+	void invertXVelocity();
 
 private:
 	bool bJumping, bFalling;

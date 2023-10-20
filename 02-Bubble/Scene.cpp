@@ -18,7 +18,6 @@ Scene::Scene()
 	map = NULL;
 	bgmap = NULL;
 	player = NULL;
-	goomba = NULL;
 }
 
 Scene::~Scene()
@@ -37,11 +36,20 @@ void Scene::init()
 	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
 	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
 
-	goomba = new Item();
-	goomba->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
-	goomba->setPosition(glm::vec2(10 * map->getTileSize(), 10 * map->getTileSize()));
-	goomba->setTileMap(map);
+	// Level, coins, points, remainig time
+	level = 1;
+	points = 0;
+	remTime = 400.f;
 
+	// Enemies initialization
+	enemies.clear();
+	enemies.resize(4);
+	for (int e = 0; e < 4; ++e){
+		enemies[e] = new Item();
+		enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + e*40, 10 * map->getTileSize()));
+		enemies[e]->setTileMap(map);
+	}
 
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
@@ -50,7 +58,6 @@ void Scene::init()
 
 	camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
-	currentTime = 0.0f;
 
 	defaultMus.openFromFile("audio/track1.ogg");
 	defaultMus.setLoop(true);
@@ -63,8 +70,7 @@ void Scene::init()
 
 void Scene::update(int deltaTime)
 {
-	currentTime += deltaTime;
-
+	remTime -= deltaTime / 1000.f;
 	map->update(deltaTime);
 
 	if (player->isDead()){
@@ -74,21 +80,39 @@ void Scene::update(int deltaTime)
 	
 	glm::ivec2 playerPosAnt = player->getPosition();
 
+	// Update player
 	player->update(deltaTime);
-	if (!goomba->isDead()) goomba->update(deltaTime);
-
 	glm::ivec2 playerPos = player->getPosition();
 	glm::ivec2 playerSize = player->getSize();
 
-	if (goomba->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
-		goomba->die();
-		player->jump(30);
-	} else if (goomba->collisionKill(playerPos, playerSize)){
-		// Death
-		player->die();
-		playerDeathStarted = true;
-	}
+	// Update enemies
+	for (int e = 0; e < enemies.size(); ++e){
+		if (enemies[e]->isDead()) continue;
 
+		enemies[e]->update(deltaTime);
+		glm::ivec2 enemyPos = enemies[e]->getPosition();
+		glm::ivec2 enemySize = enemies[e]->getSize();
+
+		// First check for collision between enemies
+		for (int ee = 0; ee < enemies.size(); ++ee){
+			if (ee == e || enemies[ee]->isDead()) continue;
+
+			if (enemies[ee]->collisionKill(enemyPos, enemySize)){
+				// Collision
+				enemies[ee]->invertXVelocity();
+				enemies[e]->invertXVelocity();
+			}
+		}
+
+
+		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
+			enemies[e]->die();
+			player->jump(30);
+		} else if (enemies[e]->collisionKill(playerPos, playerSize)){
+			player->die();
+			playerDeathStarted = true;
+		}
+	}
 
 	if (playerPos.x <= camera.x && playerPos.x - playerPosAnt.x < 0){
 		player->setPosition(glm::vec2(camera.x, playerPos.y));
@@ -120,14 +144,32 @@ void Scene::render()
 	bgmap->render();
 	map->render();
 	player->render();
-	if (!goomba->isDead()) goomba->render();
+
+	// Enemies
+	for (int e = 0; e < enemies.size(); ++e){
+		if (!enemies[e]->isDead()) enemies[e]->render();
+	}
 
 	// Render text
-	const char * level = "LEVEL 1";
-	renderText(level, glm::vec2(5, 5));
+	string pointString = std::to_string(points);
+	pointString.insert(pointString.begin(), 6 - pointString.length(), '0');
+	renderText(pointString, glm::vec2(5, 5));
 
-	const char * coins = "# 5";
-	renderText(coins, glm::vec2(128, 5));
+	string levelStr = "WORLD";
+	renderText(levelStr, glm::vec2(75, 5));
+
+	levelStr = "1-" + std::to_string(level);
+	renderText(levelStr, glm::vec2(85, 15));
+
+	string coins = "# ";
+	coins += std::to_string(map->getTotalCoins());
+	renderText(coins, glm::vec2(140, 5));
+
+	string timeStr = "TIME";
+	renderText(timeStr, glm::vec2(200, 5));
+
+	timeStr = std::to_string((int) remTime);
+	renderText(timeStr, glm::vec2(208, 15));
 
 }
 
@@ -159,25 +201,67 @@ void Scene::initGlyphTextures(){
 		textSprite->addKeyframe(x, glm::vec2(0.0625*(offset % (Q-A)), (x > P ? 0.1875f : 0.125f)));
 	}
 
+	textSprite->setAnimationSpeed(POINT, 0);
+	textSprite->addKeyframe(POINT, glm::vec2(0.f, 0.25f));
+	textSprite->setAnimationSpeed(COMMA, 0);
+	textSprite->addKeyframe(COMMA, glm::vec2(0.0625f, 0.25f));
+	textSprite->setAnimationSpeed(DASH, 0);
+	textSprite->addKeyframe(DASH, glm::vec2(0.125f, 0.25f));
+	textSprite->setAnimationSpeed(EXCLAMATION, 0);
+	textSprite->addKeyframe(EXCLAMATION, glm::vec2(0.1875f, 0.25f));
+	textSprite->setAnimationSpeed(EQUALS, 0);
+	textSprite->addKeyframe(EQUALS, glm::vec2(0.25f, 0.25f));
+	textSprite->setAnimationSpeed(TWODOTS, 0);
+	textSprite->addKeyframe(TWODOTS, glm::vec2(0.3125f, 0.25f));
+	textSprite->setAnimationSpeed(APOSTROPHE, 0);
+	textSprite->addKeyframe(APOSTROPHE, glm::vec2(0.375f, 0.25f));
+	textSprite->setAnimationSpeed(DOUBLEAPOSTROPHE, 0);
+	textSprite->addKeyframe(DOUBLEAPOSTROPHE, glm::vec2(0.4375f, 0.25f));
+
 	return;
 }
 
-void Scene::renderText(const char * text, glm::vec2 pos){
+void Scene::renderText(string& text, glm::vec2 pos){
 	// Position top-left
-	const char * c;
 	int i = 0;
 
-	for (c = text; *c != '\0'; ++c){
-		// Rendering char *c
-		if (*c == ' ') {
-			++i;
-			continue;
-		} else if (*c == '#'){
-			// Coin
-			textSprite->changeAnimation(COIN);
+	for (char c : text){
+		// Rendering char c
+		switch (c){
+			case ' ':
+				++i;
+				continue;
+			case '#':
+				textSprite->changeAnimation(COIN);
+				break;
+			case '.':
+				textSprite->changeAnimation(POINT);
+				break;
+			case ',':
+				textSprite->changeAnimation(COMMA);
+				break;
+			case '-':
+				textSprite->changeAnimation(DASH);
+				break;
+			case '!':
+				textSprite->changeAnimation(EXCLAMATION);
+				break;
+			case ':':
+				textSprite->changeAnimation(TWODOTS);
+				break;
+			case '=':
+				textSprite->changeAnimation(EQUALS);
+				break;
+			case '\'':
+				textSprite->changeAnimation(APOSTROPHE);
+				break;
+			case '\"':
+				textSprite->changeAnimation(DOUBLEAPOSTROPHE);
+				break;
+			default:
+				if (c >= int('0') && c <= int('9')) textSprite->changeAnimation(c - int('0'));
+				else if (c >= int('A') && c <= int('Z')) textSprite->changeAnimation(c - int('A') + A);
 		}
-		else if (*c >= int('0') && *c <= int('9')) textSprite->changeAnimation(*c - int('0'));
-		else if (*c >= int('A') && *c <= int('Z')) textSprite->changeAnimation(*c - int('A') + A);
 		
 		textSprite->setPosition( glm::vec2(pos.x + 8*i + camera.x, pos.y));
 		textSprite->render(false);

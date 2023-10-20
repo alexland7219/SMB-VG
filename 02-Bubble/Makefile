@@ -2,7 +2,7 @@
 CC = g++
 
 # Compiler flags
-CFLAGS = -std=c++11 -Wall -I/usr/include -I/usr/local/include
+CFLAGS = -g -std=c++11 -Wall -I/usr/include -I/usr/local/include
 
 # Linker flags
 LDFLAGS = -lGL -lGLEW -lglut -lSOIL -lGLU -lsfml-audio -lsfml-system

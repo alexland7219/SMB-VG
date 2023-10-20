@@ -19,6 +19,7 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 {
 	texProgram = program;
 	isBackground = isbg;
+	nCoins = 0;
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 
@@ -194,7 +195,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
 
-bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size)
 {
 	int x, y0, y1;
 	
@@ -205,6 +206,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) co
 	{
 		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
@@ -218,7 +220,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size) co
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size)
 {
 	int x, y0, y1;
 	
@@ -229,6 +231,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size) c
 	{		
 		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 
 			continue;
@@ -254,6 +257,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 	{	
 		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 
 			continue;
@@ -287,7 +291,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 }
 
 
-bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY) const
+bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY)
 {
 	int x0, x1, y;
 	
@@ -298,6 +302,7 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	{
 		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
+			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
@@ -321,3 +326,5 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	
 	return false;
 }
+
+int TileMap::getTotalCoins(){ return nCoins; }

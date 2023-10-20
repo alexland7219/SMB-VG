@@ -96,6 +96,10 @@ void Item::setTileMap(TileMap* tileMap)
 	map = tileMap;
 }
 
+void Item::invertXVelocity(){
+	vel.x = -vel.x;
+}
+
 void Item::setPosition(const glm::vec2& pos)
 {
 	posItem = pos;
@@ -130,3 +134,5 @@ void Item::die(){
 
 bool Item::isDead(){ return itemKO; }
 
+glm::vec2 Item::getPosition(){ return posItem; }
+glm::vec2 Item::getSize(){ return glm::vec2(ITEM_WIDTH, ITEM_HEIGHT); }

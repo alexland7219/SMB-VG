@@ -1,7 +1,8 @@
 #ifndef _SCENE_INCLUDE
 #define _SCENE_INCLUDE
 
-
+#include <vector>
+#include <string>
 #include <glm/glm.hpp>
 #include "ShaderProgram.h"
 #include "TileMap.h"
@@ -28,7 +29,7 @@ public:
 private:
 	void initShaders();
 	void initGlyphTextures();
-	void renderText(const char * text, glm::vec2 pos);
+	void renderText(string& text, glm::vec2 pos);
 
 private:
 	glm::vec4 camera; // Left, Right, Bottom, Up
@@ -36,17 +37,20 @@ private:
 	TileMap* map;
 	TileMap* bgmap;
 	Player* player;
+	vector<Item*> enemies;
+
 	Item* goomba;
 	ShaderProgram texProgram;
 
 	Texture textSpriteSheet;
 	Sprite* textSprite;
-
-	float currentTime;
 	glm::mat4 projection;
 
 	sf::Music defaultMus;
 	bool playerDeathStarted;
+
+	int points, level;
+	float remTime;
 };
 
 
