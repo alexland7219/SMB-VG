@@ -9,7 +9,7 @@
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 69
 #define FALL_STEP 3
-#define ITEM_HEIGHT 16
+#define ITEM_HEIGHT (typeItem == KOOPA ? 24 : 16)
 #define ITEM_WIDTH 16
 
 #define MIN_WALK_SPEED 0.4
@@ -24,32 +24,61 @@
 
 enum ItemAnims
 {
-	WALK, DEATH
+	WALK, DEATH, WALK_RIGHT, WALK_LEFT, IN_SHELL
 };
 
+enum ItemTypes
+{
+	GOOMBA, KOOPA, MUSHROOM, STAR
+};
 
 void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int type)
 {
 	bJumping = false;
 	bFalling = false;
 	itemKO = false;
+	koopaShell = false;
+	typeItem = type;
 	vel = glm::vec2(0.5f, 0.f);
-
 	// TYPE 0: Goomba
-	spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(2);
+	switch (type){
+		case GOOMBA:
+			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
+			sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+			sprite->setNumberAnimations(2);
 
-	sprite->setAnimationSpeed(WALK, 4);
-	sprite->addKeyframe(WALK, glm::vec2(0.f, 0.f));
-	sprite->addKeyframe(WALK, glm::vec2(0.25f, 0.f));
+			sprite->setAnimationSpeed(WALK, 4);
+			sprite->addKeyframe(WALK, glm::vec2(0.f, 0.f));
+			sprite->addKeyframe(WALK, glm::vec2(0.25f, 0.f));
 
-	sprite->setAnimationSpeed(DEATH, 1);
-	sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.f));
+			sprite->setAnimationSpeed(DEATH, 1);
+			sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.f));
 
-	sprite->changeAnimation(0);
-	tileMapDispl = tileMapPos;
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			sprite->changeAnimation(0);
+			tileMapDispl = tileMapPos;
+			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			break;
+
+		case KOOPA:
+			spritesheet.loadFromFile("images/koopa.png", TEXTURE_PIXEL_FORMAT_RGBA);
+			sprite = Sprite::createSprite(glm::ivec2(16, 24), glm::vec2(0.25, 0.5), &spritesheet, &shaderProgram);
+			sprite->setNumberAnimations(5);
+
+			sprite->setAnimationSpeed(WALK_RIGHT, 4);
+			sprite->addKeyframe(WALK_RIGHT, glm::vec2(0.f, 0.5f));
+			sprite->addKeyframe(WALK_RIGHT, glm::vec2(0.25f, 0.5f));
+			
+			sprite->setAnimationSpeed(WALK_LEFT, 4);
+			sprite->addKeyframe(WALK_LEFT, glm::vec2(0.f, 0.f));
+			sprite->addKeyframe(WALK_LEFT, glm::vec2(0.25f, 0.f));
+
+			sprite->setAnimationSpeed(IN_SHELL, 1);
+			sprite->addKeyframe(IN_SHELL, glm::vec2(0.5f, 0.f));
+
+			sprite->changeAnimation(WALK_RIGHT);
+			tileMapDispl = tileMapPos;
+			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+	}
 }
 
 void Item::update(int deltaTime)
@@ -71,6 +100,8 @@ void Item::update(int deltaTime)
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
 
+		if (vel.x < 0 && typeItem == KOOPA && !koopaShell) changeAnimation(WALK_LEFT);
+		else if (typeItem == KOOPA && !koopaShell) changeAnimation(WALK_RIGHT);
 	}
 
 	posItem.y += FALL_STEP;
@@ -98,6 +129,9 @@ void Item::setTileMap(TileMap* tileMap)
 
 void Item::invertXVelocity(){
 	vel.x = -vel.x;
+	if (vel.x < 0 && typeItem == KOOPA && !koopaShell) changeAnimation(WALK_LEFT);
+	else if (typeItem == KOOPA && !koopaShell) changeAnimation(WALK_RIGHT);
+
 }
 
 void Item::setPosition(const glm::vec2& pos)
@@ -109,7 +143,9 @@ void Item::setPosition(const glm::vec2& pos)
 bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 	if (deadAnimStart) return false;
 
-	bool above = (pos.y + (size.y - 16) < posItem.y && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT);
+	int off = (typeItem == KOOPA && koopaShell ? 10 : 0);
+
+	bool above = (pos.y + (size.y - 16) < posItem.y + off && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT + off);
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
 	return above && intersect;
@@ -117,18 +153,31 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 
 bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 	if (deadAnimStart) return false;
+	int off = (typeItem == KOOPA && koopaShell ? 10 : 0);
 
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
-	return (pos.y + (size.y - 16) <= posItem.y && pos.y + (size.y - 16) >= posItem.y - 10) && intersect;
+	return (pos.y + (size.y - 16) >= posItem.y - 12 + off) && intersect;
 }
 
-void Item::die(){
+void Item::stomp(const glm::ivec2& pos){
 	// Type 0: goomba death
-	deadAnimStart = true;
-	deadAnimCounter = 400;
+	switch (typeItem){
+		case GOOMBA:
+		deadAnimStart = true;
+		deadAnimCounter = 400;
 
-	sprite->changeAnimation(DEATH);
+		sprite->changeAnimation(DEATH);
+		break;
+
+		case KOOPA:
+		if (!koopaShell){
+			vel.x = 0;
+			posItem.y += 0;
+			changeAnimation(IN_SHELL);
+			koopaShell = true;
+		} 
+	}
 
 }
 

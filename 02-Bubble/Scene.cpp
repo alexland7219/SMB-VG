@@ -46,7 +46,8 @@ void Scene::init()
 	enemies.resize(4);
 	for (int e = 0; e < 4; ++e){
 		enemies[e] = new Item();
-		enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		if (e != 3) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
 		enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + e*40, 10 * map->getTileSize()));
 		enemies[e]->setTileMap(map);
 	}
@@ -106,10 +107,11 @@ void Scene::update(int deltaTime)
 
 
 		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
-			enemies[e]->die();
+			enemies[e]->stomp(playerPos);
 			player->jump(30);
 		} else if (enemies[e]->collisionKill(playerPos, playerSize)){
 			player->die();
+			defaultMus.stop();
 			playerDeathStarted = true;
 		}
 	}

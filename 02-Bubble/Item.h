@@ -22,7 +22,7 @@ public:
 	bool collisionStomped(const glm::ivec2& posPlayer, glm::ivec2 sizes);
 	bool collisionKill(const glm::ivec2& posPlayer, glm::ivec2 sizes);
 
-	void die();
+	void stomp(const glm::ivec2& posPlayer);
 	bool isDead();
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
@@ -36,8 +36,11 @@ private:
 	Texture spritesheet;
 	Sprite* sprite;
 
+	bool koopaShell;
 	bool deadAnimStart, itemKO;
 	int deadAnimCounter;
+
+	int typeItem;
 
 	TileMap* map;
 
