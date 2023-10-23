@@ -195,7 +195,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
 
-bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size)
+bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak)
 {
 	int x, y0, y1;
 	
@@ -210,17 +210,30 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size)
 			blockMatrix[y * mapSize.x + x]->collectCoin();
 			continue;
 		}
-		else if (map[y*mapSize.x+x] > 0) return true;
-		else if (blockMatrix[y*mapSize.x + x] != NULL) 
-			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+		//else if (map[y*mapSize.x+x] > 0) return true;
+		//else if (blockMatrix[y*mapSize.x + x] != NULL) 
+		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+		//		return true;
+		else if (map[y*mapSize.x+x] > 0){
+			if (map[y * mapSize.x + x] == -1 && koopaBreak)
+				blockMatrix[y * mapSize.x + x]->breakBlock();
+
+			return true;
+		}
+		else if (blockMatrix[y*mapSize.x + x] != NULL){
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+				if (map[y * mapSize.x + x] == -1 && koopaBreak)
+					blockMatrix[y * mapSize.x + x]->breakBlock();
+
 				return true;
-		
+			}
+		}
 	}
 	
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size)
+bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak)
 {
 	int x, y0, y1;
 	
@@ -236,10 +249,24 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size)
 
 			continue;
 		}
-		else if (map[y*mapSize.x+x] > 0) return true;
-		else if (blockMatrix[y*mapSize.x + x] != NULL) 
-			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+		//else if (map[y*mapSize.x+x] > 0) return true;
+		//else if (blockMatrix[y*mapSize.x + x] != NULL) 
+		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
+		//		return true;
+		else if (map[y*mapSize.x+x] > 0){
+			if (map[y * mapSize.x + x] == -1 && koopaBreak)
+				blockMatrix[y * mapSize.x + x]->breakBlock();
+
+			return true;
+		}
+		else if (blockMatrix[y*mapSize.x + x] != NULL){
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+				if (map[y * mapSize.x + x] == -1 && koopaBreak)
+					blockMatrix[y * mapSize.x + x]->breakBlock();
+
 				return true;
+			}
+		}
 	}
 	
 	return false;

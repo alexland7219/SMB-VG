@@ -22,7 +22,7 @@ public:
 	Scene();
 	~Scene();
 
-	void init();
+	void init(int lvl);
 	void update(int deltaTime);
 	void render();
 
@@ -38,6 +38,7 @@ private:
 	TileMap* bgmap;
 	Player* player;
 	vector<Item*> enemies;
+	vector<Item*> items;
 
 	Item* goomba;
 	ShaderProgram texProgram;
@@ -46,7 +47,7 @@ private:
 	Sprite* textSprite;
 	glm::mat4 projection;
 
-	sf::Music defaultMus;
+	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus;
 	bool playerDeathStarted;
 
 	int points, level;

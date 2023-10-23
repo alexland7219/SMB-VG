@@ -22,8 +22,10 @@ public:
 	void setPosition(const glm::vec2& pos);
 	void changeAnimation(int animId);
 	bool isDead();
+	bool hasDeathAnimStarted();
 	void die();
 	void jump(int height);
+	void mushroom();
 
 	glm::vec2 getPosition();
 	glm::vec2 getSize();

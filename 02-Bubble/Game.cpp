@@ -2,11 +2,16 @@
 #include <GL/glut.h>
 #include "Game.h"
 
+enum Screens {
+	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2
+};
+
 void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-	scene.init();
+	scene.init(1);
+	//screen = MAINMENU;
 }
 
 bool Game::update(int deltaTime)

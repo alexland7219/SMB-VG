@@ -288,8 +288,8 @@ void Player::update(int deltaTime)
 
 
 	// Check for collisions left-right
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT)) || 
-		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT))){
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), false) || 
+		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), false)){
 		posPlayer.x -= vel.x;
 	}
 
@@ -353,7 +353,14 @@ void Player::jump(int height){
 
 }
 
-bool Player::isDead(){ return gameOver; }
+void Player::mushroom(){
+	bigMario = true;
+	posPlayer.y -= 16;
+	allowChangeTimer = 300; 
 
+}
+
+bool Player::isDead(){ return gameOver; }
+bool Player::hasDeathAnimStarted(){ return deadAnimStart; }
 glm::vec2 Player::getPosition(){ return posPlayer; }
 glm::vec2 Player::getSize(){ return glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT); }

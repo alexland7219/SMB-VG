@@ -26,6 +26,7 @@ public:
 	bool isDead();
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
+	int getType();
 
 	void invertXVelocity();
 	void die();

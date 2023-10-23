@@ -29,7 +29,7 @@ Scene::~Scene()
 }
 
 
-void Scene::init()
+void Scene::init(int lvl)
 {
 	initShaders();
 	initGlyphTextures();
@@ -37,7 +37,7 @@ void Scene::init()
 	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
 
 	// Level, coins, points, remainig time
-	level = 1;
+	level = lvl;
 	points = 0;
 	remTime = 400.f;
 
@@ -52,6 +52,16 @@ void Scene::init()
 		enemies[e]->setTileMap(map);
 	}
 
+	// Items initialization
+	items.clear();
+	items.resize(1);
+
+	items[0] = new Item();
+	items[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 2);
+	items[0]->setPosition(glm::vec2(10 * map->getTileSize(), 13 * map->getTileSize()));
+	items[0]->setTileMap(map);
+
+
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -64,6 +74,11 @@ void Scene::init()
 	defaultMus.setLoop(true);
 	defaultMus.setVolume(30);
 	defaultMus.play();
+
+	goombaMus.openFromFile("audio/goomba.ogg");
+	koopaMus.openFromFile("audio/koopa.ogg");
+	mushroomMus.openFromFile("audio/Mushroom.ogg");
+	mushroomMus.setVolume(15);
 
 	playerDeathStarted = false;
 
@@ -111,13 +126,50 @@ void Scene::update(int deltaTime)
 
 
 		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
+			int enemyType = enemies[e]->getType();
+
+			switch (enemyType){
+				case 0: // GOOMBA
+				goombaMus.play();
+				goombaMus.setPlayingOffset(sf::Time::Zero);
+				break;
+				case 1:
+				koopaMus.play();
+				koopaMus.setPlayingOffset(sf::Time::Zero);
+				break;
+				case 2:
+				// Mushroom
+				player->mushroom();
+				mushroomMus.play();
+				koopaMus.setPlayingOffset(sf::Time::Zero);
+
+			}
+
 			enemies[e]->stomp(playerPos);
 			player->jump(30);
 		} else if (enemies[e]->collisionKill(playerPos, playerSize)){
 			player->die();
-			defaultMus.stop();
-			playerDeathStarted = true;
+			playerDeathStarted = player->hasDeathAnimStarted();
+			if (playerDeathStarted) defaultMus.stop();
+
 		}
+	}
+
+	// Update Items
+	for (int i = 0; i < items.size(); ++i){
+		if (items[i]->isDead()) continue;
+
+		items[i]->update(deltaTime);
+		glm::ivec2 itemPos = items[i]->getPosition();
+		glm::ivec2 itemSize = items[i]->getSize();
+
+		if (items[i]->collisionStomped(playerPos, playerSize) || items[i]->collisionKill(playerPos, playerSize)){
+			player->mushroom();
+			mushroomMus.play();
+			mushroomMus.setPlayingOffset(sf::Time::Zero);
+			items[i]->die();
+		}
+
 	}
 
 	if (playerPos.x <= camera.x && playerPos.x - playerPosAnt.x < 0){
@@ -154,6 +206,11 @@ void Scene::render()
 	// Enemies
 	for (int e = 0; e < enemies.size(); ++e){
 		if (!enemies[e]->isDead()) enemies[e]->render();
+	}
+
+	// Items
+	for (int i = 0; i < items.size(); ++i){
+		if (!items[i]->isDead()) items[i]->render();
 	}
 
 	// Render text

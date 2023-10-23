@@ -40,6 +40,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 	koopaShell = false;
 	typeItem = type;
 	vel = glm::vec2(0.5f, 0.f);
+
 	// TYPE 0: Goomba
 	switch (type){
 		case GOOMBA:
@@ -78,6 +79,19 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->changeAnimation(WALK_RIGHT);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			break;
+		case MUSHROOM:
+			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
+			sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+			sprite->setNumberAnimations(1);
+
+			sprite->setAnimationSpeed(WALK, 1);
+			sprite->addKeyframe(WALK, glm::vec2(0.f, 0.25f));
+
+			sprite->changeAnimation(WALK);
+			tileMapDispl = tileMapPos;
+			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			break;
 	}
 }
 
@@ -96,8 +110,10 @@ void Item::update(int deltaTime)
 
 	// Check for collisions left-right
 	int off = (koopaShell ? 10 : 0);
-	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off)) ||
-		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off))) {
+	bool koopaBreak = koopaShell && vel.x != 0;
+
+	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak) ||
+		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
 
@@ -110,8 +126,6 @@ void Item::update(int deltaTime)
 	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y)){
 
 	}
-
-	if (typeItem == KOOPA) std::cout << int(posItem.x) << " " << posItem.y << std::endl;
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
@@ -157,16 +171,27 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 
 bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 	if (deadAnimStart) return false;
-	if (typeItem == KOOPA && koopaShell && vel.x == 0) return false;
 
 	int off = (typeItem == KOOPA && koopaShell ? 10 : 0);
 
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
+	bool y_collide = (pos.y + size.y >= posItem.y + off + 3 && pos.y <= posItem.y + off + ITEM_HEIGHT);
 
-	return (pos.y + size.y >= posItem.y + off + 3 && pos.y <= posItem.y + off + ITEM_HEIGHT) && intersect;
+	if (typeItem == KOOPA && koopaShell && vel.x == 0 && intersect && y_collide){
+		stomp(pos);
+		return false;
+	}
+
+
+	return y_collide && intersect;
 }
 
 void Item::die() {
+	if (typeItem == MUSHROOM){
+		itemKO = true;
+		return;
+	}
+
 	deadAnimStart = true;
 	deadAnimCounter = 400;
 
@@ -204,4 +229,6 @@ bool Item::isDead(){ return itemKO; }
 bool Item::killsEnemies() { return typeItem == KOOPA && koopaShell && vel.x != 0; }
 
 glm::vec2 Item::getPosition(){ return posItem; }
+int Item::getType(){ return typeItem; }
+
 glm::vec2 Item::getSize(){ return glm::vec2(ITEM_WIDTH, ITEM_HEIGHT); }
