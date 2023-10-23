@@ -132,12 +132,13 @@ void Player::update(int deltaTime)
 	if (deadAnimStart){
 		deadAnimCounter -= deltaTime;
 
-		if (deadAnimCounter < 0) posPlayer.y += 1;
-		else if (deadAnimCounter < 300) posPlayer.y -= 1;
+		if (deadAnimCounter < 2300) posPlayer.y += 1;
+		else if (deadAnimCounter < 2700) posPlayer.y -= 1;
 		
 		sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
-		if (posPlayer.y > 256) gameOver = true;
+		if (posPlayer.y > 256) posPlayer.y -= 1;
+		if (posPlayer.y >= 256 && deadAnimCounter < 0) gameOver = true;
 
 		return;
 	}
@@ -286,6 +287,16 @@ void Player::update(int deltaTime)
 
 	posPlayer.x += vel.x;
 
+	if (posPlayer.y > 240 && !deadAnimStart){
+		// Fall, immediate death
+		bigMario = false;
+		deadAnimStart = true;
+		deadAnimCounter = 3000;
+		changeAnimation(DEATH);
+		// Play death sound
+		deathMus.play();
+		deathMus.setPlayingOffset(sf::Time::Zero);
+	}
 
 	// Check for collisions left-right
 	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), false) || 
@@ -334,7 +345,7 @@ void Player::die(){
 	// Initiate animation to die
 	bigMario = false;
 	deadAnimStart = true;
-	deadAnimCounter = 600;
+	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
 	// Play death sound
 	deathMus.play();

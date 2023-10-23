@@ -127,6 +127,9 @@ void Item::update(int deltaTime)
 
 	}
 
+	if (posItem.x < 0) posItem.x = 0;
+	if (posItem.y >= 240) itemKO = true; 
+
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
 
