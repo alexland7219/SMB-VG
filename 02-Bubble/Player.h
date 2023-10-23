@@ -44,7 +44,7 @@ private:
 	bool bigMario, gameOver, deadAnimStart;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer, deadAnimCounter;
+	int allowChangeTimer, deadAnimCounter, invincibleCounter;
 	sf::Music jumpMus, deathMus;
 };
 

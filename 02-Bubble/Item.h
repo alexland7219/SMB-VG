@@ -28,6 +28,8 @@ public:
 	glm::vec2 getSize();
 
 	void invertXVelocity();
+	void die();
+	bool killsEnemies();
 
 private:
 	bool bJumping, bFalling;

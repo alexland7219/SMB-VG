@@ -95,8 +95,9 @@ void Item::update(int deltaTime)
 
 
 	// Check for collisions left-right
-	if (map->collisionMoveRight(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT)) ||
-		map->collisionMoveLeft(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT))) {
+	int off = (koopaShell ? 10 : 0);
+	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off)) ||
+		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off))) {
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
 
@@ -109,6 +110,8 @@ void Item::update(int deltaTime)
 	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y)){
 
 	}
+
+	if (typeItem == KOOPA) std::cout << int(posItem.x) << " " << posItem.y << std::endl;
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 }
@@ -145,7 +148,8 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 
 	int off = (typeItem == KOOPA && koopaShell ? 10 : 0);
 
-	bool above = (pos.y + (size.y - 16) < posItem.y + off && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT + off);
+	//bool above = (pos.y + (size.y - 16) < posItem.y + off && pos.y + (size.y - 16) > posItem.y - ITEM_HEIGHT + off);
+	bool above = (pos.y + size.y >= posItem.y + off && pos.y + size.y < posItem.y + off + 5);
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
 	return above && intersect;
@@ -153,15 +157,23 @@ bool Item::collisionStomped(const glm::ivec2& pos, const glm::ivec2 size){
 
 bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 	if (deadAnimStart) return false;
+	if (typeItem == KOOPA && koopaShell && vel.x == 0) return false;
+
 	int off = (typeItem == KOOPA && koopaShell ? 10 : 0);
 
 	bool intersect = ((pos.x > posItem.x && pos.x < posItem.x + ITEM_WIDTH) || (pos.x + size.x > posItem.x && pos.x + size.x < posItem.x + ITEM_WIDTH));
 
-	return (pos.y + (size.y - 16) >= posItem.y - 12 + off) && intersect;
+	return (pos.y + size.y >= posItem.y + off + 3 && pos.y <= posItem.y + off + ITEM_HEIGHT) && intersect;
+}
+
+void Item::die() {
+	deadAnimStart = true;
+	deadAnimCounter = 400;
+
+	sprite->changeAnimation(DEATH);
 }
 
 void Item::stomp(const glm::ivec2& pos){
-	// Type 0: goomba death
 	switch (typeItem){
 		case GOOMBA:
 		deadAnimStart = true;
@@ -176,12 +188,20 @@ void Item::stomp(const glm::ivec2& pos){
 			posItem.y += 0;
 			changeAnimation(IN_SHELL);
 			koopaShell = true;
-		} 
+		}
+		else if (koopaShell) {
+			if (vel.x == 0) {
+				if (pos.x > posItem.x) vel.x = -3.5f;
+				else vel.x = +3.5f;
+			}
+			else vel.x = 0;
+		}
 	}
 
 }
 
 bool Item::isDead(){ return itemKO; }
+bool Item::killsEnemies() { return typeItem == KOOPA && koopaShell && vel.x != 0; }
 
 glm::vec2 Item::getPosition(){ return posItem; }
 glm::vec2 Item::getSize(){ return glm::vec2(ITEM_WIDTH, ITEM_HEIGHT); }

@@ -100,8 +100,12 @@ void Scene::update(int deltaTime)
 
 			if (enemies[ee]->collisionKill(enemyPos, enemySize)){
 				// Collision
-				enemies[ee]->invertXVelocity();
-				enemies[e]->invertXVelocity();
+				if (enemies[ee]->killsEnemies()) enemies[e]->die();
+				else if (enemies[e]->killsEnemies()) enemies[ee]->die();
+				else {
+					enemies[ee]->invertXVelocity();
+					enemies[e]->invertXVelocity();
+				}
 			}
 		}
 

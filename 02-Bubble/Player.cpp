@@ -41,6 +41,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	bFalling = false;
 	gameOver = false;
 	allowChangeTimer = 0;
+	invincibleCounter = 0;
 	vel = glm::vec2(0.f, 0.f);
 	jumpHeight = 69;
 
@@ -143,6 +144,8 @@ void Player::update(int deltaTime)
 
 	if (!bigMario) sprite->update(deltaTime);
 	else bigSprite->update(deltaTime);
+
+	if (invincibleCounter > 0) invincibleCounter -= deltaTime;
 
 	// change to big mario
 	if (allowChangeTimer <= 0 && (Game::instance().getKey('m') || Game::instance().getKey('M'))){
@@ -319,6 +322,14 @@ void Player::setPosition(const glm::vec2& pos)
 
 void Player::die(){
 	if (deadAnimStart) return; // Cannot die twice
+	if (invincibleCounter > 0) return;
+
+	if (bigMario) { // Remove mushroom
+		bigMario = false;
+		posPlayer.y += 16;
+		invincibleCounter = 1000;
+		return;
+	}
 
 	// Initiate animation to die
 	bigMario = false;
