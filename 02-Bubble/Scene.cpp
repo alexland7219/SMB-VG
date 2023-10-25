@@ -33,6 +33,7 @@ void Scene::init(int lvl)
 {
 	initShaders();
 	initGlyphTextures();
+	initFloatTextures();
 	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
 	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
 
@@ -81,13 +82,69 @@ void Scene::init(int lvl)
 	mushroomMus.setVolume(15);
 
 	playerDeathStarted = false;
-
+	floatsToRender.clear();
 }
+
+enum FloatingBlocks {
+	ONE_H, TWO_H, FOUR_H, EIGHT_H, ONE_TH, TWO_TH, FOUR_TH, EIGHT_TH, COIN_BUMP, MUSH_BUMP, STAR_BUMP
+};
+
 
 void Scene::update(int deltaTime)
 {
 	remTime -= deltaTime / 1000.f;
 	map->update(deltaTime);
+
+	// Update floating blocks
+	for (int i = 0; i < floatsToRender.size(); ++i){
+		if (floatsToRender[i].y <= 0) continue;
+
+		floatsToRender[i].y -= deltaTime;
+
+		if (floatsToRender[i].y <= 0 && (floatsToRender[i].x >= MUSH_BUMP)){
+			// Need to add the new item
+			items.push_back(new Item());
+			items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, floatsToRender[i].x - EIGHT_TH);
+			items[items.size()-1]->setPosition(glm::vec2(floatsToRender[i].z, floatsToRender[i].w));
+			items[items.size()-1]->setTileMap(map);
+		}
+
+		if (floatsToRender[i].x >= COIN_BUMP){
+			floatsToRender[i].w -= .3f; // Raise
+		}
+	}
+
+	// handle possible new items
+	char newItem = map->getNewItemChar();
+	glm::vec2 mushPos;
+
+	switch (newItem){
+		case 'M':
+		// New mushroom
+		mushPos = map->getNewItemPos();
+		floatsToRender.push_back(glm::vec4(MUSH_BUMP, 600, 16*mushPos.x, 17*mushPos.y));
+		/*
+		items.push_back(new Item());
+		items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 2);
+		items[items.size()-1]->setPosition(glm::vec2(16*mushPos.x, 16*mushPos.y));
+		items[items.size()-1]->setTileMap(map);*/
+		map->flushNewItemQueue();
+		break;
+		case 'S':
+		// New star
+		mushPos = map->getNewItemPos();
+		items.push_back(new Item());
+		items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 3);
+		items[items.size()-1]->setPosition(glm::vec2(16*mushPos.x, 16*mushPos.y));
+		items[items.size()-1]->setTileMap(map);
+		map->flushNewItemQueue();
+		break;
+		case 'C':
+		mushPos = map->getNewItemPos();
+		floatsToRender.push_back(glm::vec4(COIN_BUMP, 300, 16*mushPos.x, 16*mushPos.y));
+		map->flushNewItemQueue();
+
+	}
 
 	if (player->isDead()){
 		// Game Over
@@ -203,6 +260,14 @@ void Scene::render()
 	map->render();
 	player->render();
 
+	// Render floating blocks
+	for (int i = 0; i < floatsToRender.size(); ++i){
+		if (floatsToRender[i].y <= 0) continue;
+
+		renderFloating(floatsToRender[i].x, glm::vec2(floatsToRender[i].z, floatsToRender[i].w));
+	}
+
+
 	// Enemies
 	for (int e = 0; e < enemies.size(); ++e){
 		if (!enemies[e]->isDead()) enemies[e]->render();
@@ -233,6 +298,7 @@ void Scene::render()
 
 	timeStr = std::to_string((int) remTime);
 	renderText(timeStr, glm::vec2(208, 15));
+
 
 }
 
@@ -332,6 +398,49 @@ void Scene::renderText(string& text, glm::vec2 pos){
 		++i;
 	}
 }
+
+
+void Scene::initFloatTextures(){
+	floatSpriteSheet.loadFromFile("images/letters.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	floatSprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &floatSpriteSheet, &texProgram);
+
+	floatSprite->setNumberAnimations(11);
+
+	floatSprite->setAnimationSpeed(ONE_H, 0);
+	floatSprite->addKeyframe(ONE_H, glm::vec2(0.f, 0.3125f));
+	floatSprite->setAnimationSpeed(TWO_H, 0);
+	floatSprite->addKeyframe(TWO_H, glm::vec2(0.125f, 0.3125f));
+	floatSprite->setAnimationSpeed(FOUR_H, 0);
+	floatSprite->addKeyframe(FOUR_H, glm::vec2(0.25f, 0.3125f));
+	floatSprite->setAnimationSpeed(EIGHT_H, 0);
+	floatSprite->addKeyframe(EIGHT_H, glm::vec2(0.375f, 0.3125f));
+
+	floatSprite->setAnimationSpeed(ONE_TH, 0);
+	floatSprite->addKeyframe(ONE_TH, glm::vec2(0.5f, 0.3125f));
+	floatSprite->setAnimationSpeed(TWO_TH, 0);
+	floatSprite->addKeyframe(TWO_TH, glm::vec2(0.625f, 0.3125f));
+	floatSprite->setAnimationSpeed(FOUR_TH, 0);
+	floatSprite->addKeyframe(FOUR_TH, glm::vec2(0.75f, 0.3125f));
+	floatSprite->setAnimationSpeed(EIGHT_TH, 0);
+	floatSprite->addKeyframe(EIGHT_TH, glm::vec2(0.875f, 0.3125f));
+
+	floatSprite->setAnimationSpeed(COIN_BUMP, 0);
+	floatSprite->addKeyframe(COIN_BUMP, glm::vec2(0.f, 0.4375f));
+	floatSprite->setAnimationSpeed(MUSH_BUMP, 0);
+	floatSprite->addKeyframe(MUSH_BUMP, glm::vec2(0.125f, 0.4375f));
+	floatSprite->setAnimationSpeed(STAR_BUMP, 0);
+	floatSprite->addKeyframe(STAR_BUMP, glm::vec2(0.25f, 0.4375f));
+
+	return;
+
+}
+
+void Scene::renderFloating(int type, glm::vec2 pos){
+	floatSprite->changeAnimation(type);
+	floatSprite->setPosition( glm::vec2(pos.x, pos.y));
+	floatSprite->render(false);
+}
+
 
 void Scene::initShaders()
 {

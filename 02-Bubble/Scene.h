@@ -31,6 +31,9 @@ private:
 	void initGlyphTextures();
 	void renderText(string& text, glm::vec2 pos);
 
+	void initFloatTextures();
+	void renderFloating(int type, glm::vec2 pos);
+
 private:
 	glm::vec4 camera; // Left, Right, Bottom, Up
 
@@ -45,6 +48,13 @@ private:
 
 	Texture textSpriteSheet;
 	Sprite* textSprite;
+
+	Texture floatSpriteSheet;
+	Sprite* floatSprite;
+
+	// First int -> type. Second -> Time to live. Third and Fourth -> position
+	vector<glm::vec4> floatsToRender;
+
 	glm::mat4 projection;
 
 	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus;

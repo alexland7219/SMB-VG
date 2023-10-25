@@ -16,7 +16,8 @@ class Block
     bool isBroken();
     void collectCoin();
 
-    void bumpBlock();
+    // Returns true if we need to animate a floating sprite
+    bool bumpBlock();
 	void setPosition(const glm::vec2& pos);
 
     private:

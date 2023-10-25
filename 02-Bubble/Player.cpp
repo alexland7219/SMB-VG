@@ -299,8 +299,8 @@ void Player::update(int deltaTime)
 	}
 
 	// Check for collisions left-right
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), false) || 
-		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), false)){
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false) || 
+		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false)){
 		posPlayer.x -= vel.x;
 	}
 

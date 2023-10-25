@@ -9,11 +9,18 @@ enum BlockAnims
     QUESTION, COIN, BREAKABLE, UNBREAKABLE 
 };
 
+enum QuestionBlockContainer
+{
+    Q_COIN, Q_MUSHROOM, Q_STAR
+};
+
 enum BlockTypes
 {
     T_COIN = 2,
     T_BREAKABLE = 1,
-    T_QUESTION = 5,
+    T_QUESTION_COIN = 5,
+    T_QUESTION_MUSH = 6,
+    T_QUESTION_STAR = 7,
     T_UNBREAKABLE = 10,
 };
 
@@ -30,7 +37,6 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
 
     spritesheet.loadFromFile("images/blocks.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-
 
     sprite->setNumberAnimations(4);
 
@@ -53,7 +59,7 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
     sprite->addKeyframe(UNBREAKABLE, glm::vec2(0.75f, 0.f));
     
     if (blockType == T_COIN) sprite->changeAnimation(COIN);
-    else if (blockType == T_QUESTION) sprite->changeAnimation(QUESTION);
+    else if (blockType == T_QUESTION_COIN || blockType == T_QUESTION_MUSH || blockType == T_QUESTION_STAR) sprite->changeAnimation(QUESTION);
     else sprite->changeAnimation(BREAKABLE);
 
 
@@ -67,7 +73,7 @@ void Block::update(int deltaTime){
         if (animTimer > 100) posItem.y -= 1;
         else if (animTimer > 0){
             posItem.y += 1;
-            if (blockType == T_QUESTION){
+            if (blockType == T_QUESTION_COIN || blockType == T_QUESTION_MUSH || blockType == T_QUESTION_STAR){
                 sprite->changeAnimation(UNBREAKABLE);
                 blockType = T_UNBREAKABLE;
             } 
@@ -106,12 +112,13 @@ void Block::breakBlock()
 
 bool Block::isBroken(){ return blockKO; }
 
-void Block::bumpBlock(){
-    if (animBump) return;
-    if (blockType == T_UNBREAKABLE) return;
+bool Block::bumpBlock(){
+    if (animBump) return false;
+    if (blockType == T_UNBREAKABLE) return false;
     // Move the sprite 3px up and 3px down in the span of .5 seconds
     animTimer = 200;
     animBump = true;
+    return true;
 }
 
 void Block::collectCoin(){

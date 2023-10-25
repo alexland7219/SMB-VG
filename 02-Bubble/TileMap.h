@@ -39,6 +39,10 @@ public:
 
 	void breakBlock(const glm::ivec2 pos);
 	int getTotalCoins();
+	// New item aux function for Scene.cpp
+	void flushNewItemQueue();
+	char getNewItemChar();
+	glm::vec2 getNewItemPos();
 
 private:
 	bool loadLevel(const string &levelFile);
@@ -60,6 +64,11 @@ private:
 	Block ** blockMatrix;
 
 	vector<float> blocksBroken;
+
+	// New item (Mushroom / Star) after bump
+	char newItem; // Either 'N' for None, 'M' for Mushroom, 'S' for star, 'C' for coin
+	glm::vec2 posNewItem; // If newItem != 'N'
+
 	bool isBackground;
 };
 

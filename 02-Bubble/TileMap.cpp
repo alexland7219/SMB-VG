@@ -6,6 +6,16 @@
 
 using namespace std;
 
+enum BlockTypes
+{
+    T_COIN = 2,
+    T_BREAKABLE = 1,
+    T_QUESTION_COIN = 5,
+    T_QUESTION_MUSH = 6,
+    T_QUESTION_STAR = 7,
+    T_UNBREAKABLE = 10,
+};
+/* We use negative numbers to represent dynamic objects*/
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, bool isbg)
 {
@@ -20,6 +30,7 @@ TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProg
 	texProgram = program;
 	isBackground = isbg;
 	nCoins = 0;
+	newItem = 'N';
 	loadLevel(levelFile);
 	prepareArrays(minCoords, program);
 
@@ -114,9 +125,11 @@ bool TileMap::loadLevel(const string &levelFile)
 						map[j*mapSize.x+i] = 0;
 						blockMatrix[j*mapSize.x+i] = NULL;
 						break;
-					case '1':
-					case '2':
-					case '5':
+					case '1': // Breakable
+					case '2': // Coin
+					case '5': // Question block with coin
+					case '6': // Question block with mushroom
+					case '7': // Question block with star
 						// Dynamic block (breakable, question, coin)
 						map[j*mapSize.x+i] = int('0') - tile; // Negative to mark dynamic block
 						blockMatrix[j*mapSize.x+i] = new Block();
@@ -204,7 +217,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{
-		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
@@ -215,14 +228,14 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
 		//		return true;
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -1 && koopaBreak)
+			if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
 				blockMatrix[y * mapSize.x + x]->breakBlock();
 
 			return true;
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
-				if (map[y * mapSize.x + x] == -1 && koopaBreak)
+				if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
 					blockMatrix[y * mapSize.x + x]->breakBlock();
 
 				return true;
@@ -242,7 +255,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 	y1 = (pos.y + size.y - 1) / tileSize;
 	for(int y=y0; y<=y1; y++)
 	{		
-		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
@@ -254,14 +267,14 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
 		//		return true;
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -1 && koopaBreak)
+			if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
 				blockMatrix[y * mapSize.x + x]->breakBlock();
 
 			return true;
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
-				if (map[y * mapSize.x + x] == -1 && koopaBreak)
+				if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
 					blockMatrix[y * mapSize.x + x]->breakBlock();
 
 				return true;
@@ -279,10 +292,11 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 	x0 = (pos.x + 3) / tileSize;
 	x1 = (pos.x + size.x - 3) / tileSize;
 	y = pos.y / tileSize;
+	bool addNewItem;
 
 	for(int x=x0; x<=x1; x++)
 	{	
-		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
 			blockMatrix[y * mapSize.x + x]->collectCoin();
@@ -290,23 +304,57 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 			continue;
 		}
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -1 && bigMario) {
+			if (map[y * mapSize.x + x] == -T_BREAKABLE && bigMario) {
 				blockMatrix[y * mapSize.x + x]->breakBlock();
-			} else if (map[y * mapSize.x + x] == -1 || map[y * mapSize.x + x] == -5 ){
-				// Small mario bumps
-				blockMatrix[y * mapSize.x + x]->bumpBlock();
+			} 
+			else if (map[y * mapSize.x + x] == -T_BREAKABLE) blockMatrix[y * mapSize.x + x]->bumpBlock();
+			else if (map[y * mapSize.x + x] == -T_QUESTION_COIN){
+				// Animate getting coin
+
+				addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
+				if (addNewItem){
+					newItem = 'C';
+					posNewItem = glm::vec2(x, y - 1);
+					++nCoins;
+				}
 			}
+			else if (map[y * mapSize.x + x] == -T_QUESTION_MUSH){
+				addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
+				
+				// Create mushroom item
+				if (addNewItem){
+					newItem = 'M';
+					posNewItem = glm::vec2(x, y - 1);
+				}
+			}
+
 			return true;
 
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
-				if (map[y * mapSize.x + x] == -1 && bigMario) {
+				if (map[y * mapSize.x + x] == -T_BREAKABLE && bigMario) {
 					blockMatrix[y * mapSize.x + x]->breakBlock();
-				} else if (map[y * mapSize.x + x] == -1 || map[y * mapSize.x + x] == -5){
-					// Small mario bumps
-					blockMatrix[y * mapSize.x + x]->bumpBlock();
+				} 
+				else if (map[y * mapSize.x + x] == -T_BREAKABLE) blockMatrix[y * mapSize.x + x]->bumpBlock();
+				else if (map[y * mapSize.x + x] == -T_QUESTION_COIN){
+					// Animate getting coin
+					addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
+					if (addNewItem){
+						newItem = 'C';
+						posNewItem = glm::vec2(x, y - 1);
+						++nCoins;
+					}
 				}
+				else if (map[y * mapSize.x + x] == -T_QUESTION_MUSH){
+					addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
+					// Create mushroom item
+					if (addNewItem){
+						newItem = 'M';
+						posNewItem = glm::vec2(x, y - 1);
+					}
+				}
+
 				return true;
 			}
 		}
@@ -358,3 +406,6 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 }
 
 int TileMap::getTotalCoins(){ return nCoins; }
+void TileMap::flushNewItemQueue(){ newItem = 'N'; }
+char TileMap::getNewItemChar(){ return newItem; }
+glm::vec2 TileMap::getNewItemPos(){ return posNewItem; }
