@@ -121,8 +121,8 @@ bool Block::bumpBlock(){
     return true;
 }
 
-void Block::collectCoin(){
-    blockKO = true;
+void Block::collectCoin(bool isCoinBlock){
+    blockKO = isCoinBlock;
     coinMus.play();
     coinMus.setPlayingOffset(sf::Time::Zero);
 

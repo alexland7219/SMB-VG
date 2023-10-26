@@ -55,12 +55,12 @@ void Scene::init(int lvl)
 
 	// Items initialization
 	items.clear();
-	items.resize(1);
+	/*items.resize(1);
 
 	items[0] = new Item();
 	items[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 2);
 	items[0]->setPosition(glm::vec2(10 * map->getTileSize(), 13 * map->getTileSize()));
-	items[0]->setTileMap(map);
+	items[0]->setTileMap(map);*/
 
 
 	player = new Player();
@@ -141,7 +141,7 @@ void Scene::update(int deltaTime)
 		break;
 		case 'C':
 		mushPos = map->getNewItemPos();
-		floatsToRender.push_back(glm::vec4(COIN_BUMP, 300, 16*mushPos.x, 16*mushPos.y));
+		floatsToRender.push_back(glm::vec4(COIN_BUMP, 400, 16*mushPos.x, 16*mushPos.y));
 		map->flushNewItemQueue();
 
 	}
@@ -172,8 +172,15 @@ void Scene::update(int deltaTime)
 
 			if (enemies[ee]->collisionKill(enemyPos, enemySize)){
 				// Collision
-				if (enemies[ee]->killsEnemies()) enemies[e]->die();
-				else if (enemies[e]->killsEnemies()) enemies[ee]->die();
+				if (enemies[ee]->killsEnemies()){
+					enemies[e]->die();
+					floatsToRender.push_back(glm::vec4(ONE_TH, 400, enemyPos.x, enemyPos.y - 16));
+				}
+				else if (enemies[e]->killsEnemies()){
+					enemies[ee]->die();
+					glm::vec2 otherEnemyPos = enemies[ee]->getPosition();
+					floatsToRender.push_back(glm::vec4(ONE_TH, 400, otherEnemyPos.x, otherEnemyPos.y - 16));
+				} 
 				else {
 					enemies[ee]->invertXVelocity();
 					enemies[e]->invertXVelocity();
@@ -187,15 +194,21 @@ void Scene::update(int deltaTime)
 
 			switch (enemyType){
 				case 0: // GOOMBA
+				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y + 16));
+				points += 1000;
 				goombaMus.play();
 				goombaMus.setPlayingOffset(sf::Time::Zero);
 				break;
 				case 1:
+				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y));
+				points += 1000;
 				koopaMus.play();
 				koopaMus.setPlayingOffset(sf::Time::Zero);
 				break;
 				case 2:
 				// Mushroom
+				floatsToRender.push_back(glm::vec4(TWO_TH, 400, playerPos.x, playerPos.y));
+				points += 2000;
 				player->mushroom();
 				mushroomMus.play();
 				koopaMus.setPlayingOffset(sf::Time::Zero);
@@ -279,7 +292,7 @@ void Scene::render()
 	}
 
 	// Render text
-	string pointString = std::to_string(points);
+	string pointString = std::to_string(points + map->getTotalCoins()*100);
 	pointString.insert(pointString.begin(), 6 - pointString.length(), '0');
 	renderText(pointString, glm::vec2(5, 5));
 
@@ -424,8 +437,10 @@ void Scene::initFloatTextures(){
 	floatSprite->setAnimationSpeed(EIGHT_TH, 0);
 	floatSprite->addKeyframe(EIGHT_TH, glm::vec2(0.875f, 0.3125f));
 
-	floatSprite->setAnimationSpeed(COIN_BUMP, 0);
+	floatSprite->setAnimationSpeed(COIN_BUMP, 4);
 	floatSprite->addKeyframe(COIN_BUMP, glm::vec2(0.f, 0.4375f));
+	floatSprite->addKeyframe(COIN_BUMP, glm::vec2(0.375f, 0.4375f));
+	floatSprite->addKeyframe(COIN_BUMP, glm::vec2(0.5f, 0.4375f));
 	floatSprite->setAnimationSpeed(MUSH_BUMP, 0);
 	floatSprite->addKeyframe(MUSH_BUMP, glm::vec2(0.125f, 0.4375f));
 	floatSprite->setAnimationSpeed(STAR_BUMP, 0);

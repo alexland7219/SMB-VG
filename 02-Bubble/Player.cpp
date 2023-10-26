@@ -365,6 +365,8 @@ void Player::jump(int height){
 }
 
 void Player::mushroom(){
+	if (deadAnimStart) return;
+
 	bigMario = true;
 	posPlayer.y -= 16;
 	allowChangeTimer = 300; 

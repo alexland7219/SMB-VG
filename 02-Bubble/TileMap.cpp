@@ -220,7 +220,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
-			blockMatrix[y * mapSize.x + x]->collectCoin();
+			blockMatrix[y * mapSize.x + x]->collectCoin(true);
 			continue;
 		}
 		//else if (map[y*mapSize.x+x] > 0) return true;
@@ -258,7 +258,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
-			blockMatrix[y * mapSize.x + x]->collectCoin();
+			blockMatrix[y * mapSize.x + x]->collectCoin(true);
 
 			continue;
 		}
@@ -299,7 +299,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
-			blockMatrix[y * mapSize.x + x]->collectCoin();
+			blockMatrix[y * mapSize.x + x]->collectCoin(true);
 
 			continue;
 		}
@@ -313,6 +313,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 
 				addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
 				if (addNewItem){
+					blockMatrix[y * mapSize.x + x]->collectCoin(false);
 					newItem = 'C';
 					posNewItem = glm::vec2(x, y - 1);
 					++nCoins;
@@ -341,6 +342,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 					// Animate getting coin
 					addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
 					if (addNewItem){
+						blockMatrix[y * mapSize.x + x]->collectCoin(false);
 						newItem = 'C';
 						posNewItem = glm::vec2(x, y - 1);
 						++nCoins;
@@ -381,7 +383,7 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 		if (map[y*mapSize.x + x] == -2 && !blockMatrix[y * mapSize.x + x]->isBroken()){
 			// Coin
 			++nCoins;
-			blockMatrix[y * mapSize.x + x]->collectCoin();
+			blockMatrix[y * mapSize.x + x]->collectCoin(true);
 			continue;
 		}
 		else if (map[y*mapSize.x+x] > 0) {

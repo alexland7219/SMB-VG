@@ -14,7 +14,7 @@ class Block
     void render();
     void breakBlock();
     bool isBroken();
-    void collectCoin();
+    void collectCoin(bool isCoinBlock);
 
     // Returns true if we need to animate a floating sprite
     bool bumpBlock();
