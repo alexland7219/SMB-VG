@@ -60,7 +60,7 @@ private:
 	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus;
 	bool playerDeathStarted;
 
-	int points, level;
+	int points, level, pointStreak;
 	float remTime;
 };
 

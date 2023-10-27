@@ -26,8 +26,8 @@ class Block
     glm::ivec2 tileMapDispl;
     Texture spritesheet;
     Sprite* sprite;
-    int animTimer;
-    bool animBump;
+    int animTimer, breakTimer;
+    bool animBump, animBreak;
 	sf::Music breakblock, coinMus;
 
     bool blockKO;

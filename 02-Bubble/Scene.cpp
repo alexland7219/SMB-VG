@@ -40,6 +40,7 @@ void Scene::init(int lvl)
 	// Level, coins, points, remainig time
 	level = lvl;
 	points = 0;
+	pointStreak = 0;
 	remTime = 400.f;
 
 	// Enemies initialization
@@ -174,12 +175,16 @@ void Scene::update(int deltaTime)
 				// Collision
 				if (enemies[ee]->killsEnemies()){
 					enemies[e]->die();
-					floatsToRender.push_back(glm::vec4(ONE_TH, 400, enemyPos.x, enemyPos.y - 16));
+					points += glm::min((1 << pointStreak), 8)*1000;
+					++pointStreak;
+					floatsToRender.push_back(glm::vec4(glm::min(EIGHT_TH + 0, ONE_TH + pointStreak), 400, enemyPos.x, enemyPos.y - 16));
 				}
 				else if (enemies[e]->killsEnemies()){
 					enemies[ee]->die();
+					points += glm::min((1 << pointStreak), 8)*1000;
+					++pointStreak;
 					glm::vec2 otherEnemyPos = enemies[ee]->getPosition();
-					floatsToRender.push_back(glm::vec4(ONE_TH, 400, otherEnemyPos.x, otherEnemyPos.y - 16));
+					floatsToRender.push_back(glm::vec4(glm::min(EIGHT_TH + 0, ONE_TH + pointStreak), 400, otherEnemyPos.x, otherEnemyPos.y - 16));
 				} 
 				else {
 					enemies[ee]->invertXVelocity();
@@ -191,33 +196,30 @@ void Scene::update(int deltaTime)
 
 		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
 			int enemyType = enemies[e]->getType();
+			++pointStreak;
+
+			int spriteThatWillRender = glm::min(EIGHT_TH + 0, ONE_TH + pointStreak);
 
 			switch (enemyType){
 				case 0: // GOOMBA
-				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y + 16));
-				points += 1000;
+				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
+				points += glm::min((1 << pointStreak), 8) * 1000;
 				goombaMus.play();
 				goombaMus.setPlayingOffset(sf::Time::Zero);
 				break;
-				case 1:
-				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y));
-				points += 1000;
+				case 1: // KOOPA TROOPA
+				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
+				points += glm::min((1 << pointStreak), 8) * 1000;
 				koopaMus.play();
 				koopaMus.setPlayingOffset(sf::Time::Zero);
 				break;
-				case 2:
-				// Mushroom
-				floatsToRender.push_back(glm::vec4(TWO_TH, 400, playerPos.x, playerPos.y));
-				points += 2000;
-				player->mushroom();
-				mushroomMus.play();
-				koopaMus.setPlayingOffset(sf::Time::Zero);
 
 			}
 
 			enemies[e]->stomp(playerPos);
 			player->jump(30);
 		} else if (enemies[e]->collisionKill(playerPos, playerSize)){
+			pointStreak = 0;
 			player->die();
 			playerDeathStarted = player->hasDeathAnimStarted();
 			if (playerDeathStarted) defaultMus.stop();
@@ -234,6 +236,8 @@ void Scene::update(int deltaTime)
 		glm::ivec2 itemSize = items[i]->getSize();
 
 		if (items[i]->collisionStomped(playerPos, playerSize) || items[i]->collisionKill(playerPos, playerSize)){
+			points += 1000;
+			floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y - 16));
 			player->mushroom();
 			mushroomMus.play();
 			mushroomMus.setPlayingOffset(sf::Time::Zero);

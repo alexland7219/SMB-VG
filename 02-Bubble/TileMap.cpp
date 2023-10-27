@@ -14,6 +14,8 @@ enum BlockTypes
     T_QUESTION_MUSH = 6,
     T_QUESTION_STAR = 7,
     T_UNBREAKABLE = 10,
+	T_FLAGPOLE = 11,
+	T_UPPERPOLE = 12
 };
 /* We use negative numbers to represent dynamic objects*/
 
