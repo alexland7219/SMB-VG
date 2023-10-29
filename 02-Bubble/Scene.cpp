@@ -94,6 +94,8 @@ enum FloatingBlocks {
 void Scene::update(int deltaTime)
 {
 	remTime -= deltaTime / 1000.f;
+	if (remTime < 0) exit(0);
+
 	map->update(deltaTime);
 
 	// Update floating blocks
@@ -251,7 +253,7 @@ void Scene::update(int deltaTime)
 	}
 
 	// Scroll to the right (bottom and up stay the same)
-	if (playerPos.x > camera.x + 2*SCREEN_WIDTH / 3 && playerPos.x - playerPosAnt.x > 0){
+	if (playerPos.x > camera.x + 2*SCREEN_WIDTH / 3 && playerPos.x - playerPosAnt.x > 0 && !player->won()){
 		camera.x += (playerPos.x - playerPosAnt.x);
 		camera.y += (playerPos.x - playerPosAnt.x);
 		projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);

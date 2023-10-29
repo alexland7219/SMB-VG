@@ -112,7 +112,9 @@ void Item::update(int deltaTime)
 	int off = (koopaShell ? 10 : 0);
 	bool koopaBreak = koopaShell && vel.x != 0;
 
-	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak) ||
+	bool q;
+
+	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, q) ||
 		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
@@ -123,7 +125,8 @@ void Item::update(int deltaTime)
 
 	posItem.y += FALL_STEP;
 
-	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y)){
+	bool f;
+	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y, f)){
 
 	}
 
@@ -206,7 +209,6 @@ void Item::stomp(const glm::ivec2& pos){
 		case GOOMBA:
 		deadAnimStart = true;
 		deadAnimCounter = 400;
-
 		sprite->changeAnimation(DEATH);
 		break;
 
@@ -228,7 +230,7 @@ void Item::stomp(const glm::ivec2& pos){
 
 }
 
-bool Item::isDead(){ return itemKO || deadAnimStart; }
+bool Item::isDead(){ return itemKO; }
 bool Item::killsEnemies() { return typeItem == KOOPA && koopaShell && vel.x != 0; }
 
 glm::vec2 Item::getPosition(){ return posItem; }

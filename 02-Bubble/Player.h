@@ -22,10 +22,12 @@ public:
 	void setPosition(const glm::vec2& pos);
 	void changeAnimation(int animId);
 	bool isDead();
+	bool won();
 	bool hasDeathAnimStarted();
 	void die();
 	void jump(int height);
 	void mushroom();
+	void flagpole(glm::vec2 posPole);
 
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
@@ -43,10 +45,10 @@ private:
 
 	TileMap* map;
 
-	bool bigMario, gameOver, deadAnimStart;
+	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer, deadAnimCounter, invincibleCounter;
+	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter;
 	sf::Music jumpMus, deathMus;
 };
 

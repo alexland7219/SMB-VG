@@ -24,7 +24,7 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT, DEATH
+	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT, DEATH, FLAGPOLE
 };
 
 
@@ -48,7 +48,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	// Small Mario
 	spritesheet.loadFromFile("images/mario128.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(9);
+	sprite->setNumberAnimations(10);
 
 	sprite->setAnimationSpeed(STAND_LEFT, 8);
 	sprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.f));
@@ -81,6 +81,10 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	sprite->setAnimationSpeed(DEATH, 1);
 	sprite->addKeyframe(DEATH, glm::vec2(0.25f, 0.125f));
+
+	sprite->setAnimationSpeed(FLAGPOLE, 1);
+	sprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.125f));
+
 
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
@@ -139,6 +143,28 @@ void Player::update(int deltaTime)
 
 		if (posPlayer.y > 256) posPlayer.y -= 1;
 		if (posPlayer.y >= 256 && deadAnimCounter < 0) gameOver = true;
+
+		return;
+	}
+
+	else if (flagpoleAnimStart){
+
+		flagpoleAnimCounter += deltaTime;
+		if (flagpoleAnimCounter > 500 && !flagpoleTouchdown) posPlayer.y += 2;
+		sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+		sprite->update(deltaTime);
+
+		if (flagpoleTouchdown) posPlayer.x += 1.3;
+
+		bool f;
+		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, f) && !flagpoleTouchdown){
+			sprite->changeAnimation(MOVE_RIGHT);
+			// End of animation
+			flagpoleTouchdown = true;
+		}
+
+		//if (posPlayer.x > ) exit(0);
+		if (flagpoleAnimCounter > 5000) exit(0);
 
 		return;
 	}
@@ -264,8 +290,9 @@ void Player::update(int deltaTime)
 	else
 	{
 		posPlayer.y += FALL_STEP;
+		bool flagpole = false;
 
-		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y))
+		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, flagpole))
 		{
 			if (bFalling){
 				bFalling = false;
@@ -282,6 +309,16 @@ void Player::update(int deltaTime)
 					jump(69);
 				}
 			}
+		} else if (flagpole){
+			flagpoleAnimStart = true;
+			flagpoleTouchdown = false;
+			flagpoleAnimCounter = 0;
+			changeAnimation(FLAGPOLE);
+			vel.x = 0;
+			vel.y = 0;
+			bigMario = false;
+			posPlayer.x -= 5;
+
 		}
 	}
 
@@ -299,9 +336,21 @@ void Player::update(int deltaTime)
 	}
 
 	// Check for collisions left-right
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false) || 
+	bool flagpole = false;
+
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false, flagpole) || 
 		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false)){
 		posPlayer.x -= vel.x;
+	} else if (flagpole){
+
+		flagpoleAnimStart = true;
+		flagpoleTouchdown = false;
+		flagpoleAnimCounter = 0;
+		changeAnimation(FLAGPOLE);
+		vel.x = 0;
+		vel.y = 0;
+		bigMario = false;
+		posPlayer.x += 6;
 	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -369,11 +418,17 @@ void Player::mushroom(){
 
 	bigMario = true;
 	posPlayer.y -= 16;
-	allowChangeTimer = 300; 
+	allowChangeTimer = 150; 
 
 }
 
+void Player::flagpole(glm::vec2 posPole){
+	setPosition(posPole);
+	changeAnimation(FLAGPOLE);
+}
+
 bool Player::isDead(){ return gameOver; }
+bool Player::won(){ return flagpoleAnimStart; }
 bool Player::hasDeathAnimStarted(){ return deadAnimStart; }
 glm::vec2 Player::getPosition(){ return posPlayer; }
 glm::vec2 Player::getSize(){ return glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT); }

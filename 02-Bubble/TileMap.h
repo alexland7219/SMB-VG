@@ -33,8 +33,8 @@ public:
 	int getTileSize() const { return tileSize; }
 
 	bool collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak);
-	bool collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak);
-	bool collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY);
+	bool collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak, bool& flagpole);
+	bool collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool& flagpole);
 	bool collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool bigMario);
 
 	void breakBlock(const glm::ivec2 pos);

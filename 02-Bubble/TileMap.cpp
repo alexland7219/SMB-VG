@@ -14,8 +14,8 @@ enum BlockTypes
     T_QUESTION_MUSH = 6,
     T_QUESTION_STAR = 7,
     T_UNBREAKABLE = 10,
-	T_FLAGPOLE = 11,
-	T_UPPERPOLE = 12
+	T_FLAGPOLE = 14,
+	T_UPPERPOLE = 13
 };
 /* We use negative numbers to represent dynamic objects*/
 
@@ -230,8 +230,6 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
 		//		return true;
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
-				blockMatrix[y * mapSize.x + x]->breakBlock();
 
 			return true;
 		}
@@ -248,7 +246,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak)
+bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak, bool& flagpole)
 {
 	int x, y0, y1;
 	
@@ -269,8 +267,15 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 		//	if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken())
 		//		return true;
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
-				blockMatrix[y * mapSize.x + x]->breakBlock();
+			if (map[y*mapSize.x + x] == T_FLAGPOLE){
+				if (pos.x + size.x >= x*tileSize + 2)
+					flagpole = true;
+				return false;
+
+			} else if (map[y*mapSize.x+x] == T_UPPERPOLE){
+				if (pos.x + size.x >= x*tileSize + 2 && pos.y + size.y >= y + 3)
+					flagpole = true;
+			}
 
 			return true;
 		}
@@ -306,30 +311,6 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 			continue;
 		}
 		else if (map[y*mapSize.x+x] > 0){
-			if (map[y * mapSize.x + x] == -T_BREAKABLE && bigMario) {
-				blockMatrix[y * mapSize.x + x]->breakBlock();
-			} 
-			else if (map[y * mapSize.x + x] == -T_BREAKABLE) blockMatrix[y * mapSize.x + x]->bumpBlock();
-			else if (map[y * mapSize.x + x] == -T_QUESTION_COIN){
-				// Animate getting coin
-
-				addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
-				if (addNewItem){
-					blockMatrix[y * mapSize.x + x]->collectCoin(false);
-					newItem = 'C';
-					posNewItem = glm::vec2(x, y - 1);
-					++nCoins;
-				}
-			}
-			else if (map[y * mapSize.x + x] == -T_QUESTION_MUSH){
-				addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
-				
-				// Create mushroom item
-				if (addNewItem){
-					newItem = 'M';
-					posNewItem = glm::vec2(x, y - 1);
-				}
-			}
 
 			return true;
 
@@ -370,7 +351,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 }
 
 
-bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY)
+bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool& flagpole)
 {
 	int x0, x1, y;
 	
@@ -389,6 +370,11 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 			continue;
 		}
 		else if (map[y*mapSize.x+x] > 0) {
+			if (map[y*mapSize.x + x] == T_FLAGPOLE) {
+				flagpole = true;
+				return false;
+			} else if (map[y*mapSize.x + x] == T_UPPERPOLE) return false;
+
 			if(*posY - tileSize * y + size.y <= 4)
 			{
 				*posY = tileSize * y - size.y;
