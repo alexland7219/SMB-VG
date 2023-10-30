@@ -45,12 +45,13 @@ public:
 private:
 	bool bPlay;                       // Continue to play game?
 	Scene scene;                      // Scene to render
-	Screen welcome;				      // Welcome screen
+	Screen screen;				      // Welcome screen
 
 	bool keys[256], specialKeys[256]; // Store key states so that 
 	                                  // we can have access at any time
 
-	int screen;
+	int screenState;
+	int nLives;
 };
 
 

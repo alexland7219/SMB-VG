@@ -36,32 +36,32 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
     vel = glm::vec2(0.f, 0.f);
 
     spritesheet.loadFromFile("images/blocks.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
 
     sprite->setNumberAnimations(5);
 
     sprite->setAnimationSpeed(QUESTION, 4);
-    sprite->addKeyframe(QUESTION, glm::vec2(0.f, 0.25f));
-    sprite->addKeyframe(QUESTION, glm::vec2(0.25f, 0.25f));
-    sprite->addKeyframe(QUESTION, glm::vec2(0.5f, 0.25f));
-    sprite->addKeyframe(QUESTION, glm::vec2(0.75f, 0.25f));
+    sprite->addKeyframe(QUESTION, glm::vec2(0.5f, 0.f));
+    sprite->addKeyframe(QUESTION, glm::vec2(0.625f, 0.f));
+    sprite->addKeyframe(QUESTION, glm::vec2(0.75f, 0.f));
+    sprite->addKeyframe(QUESTION, glm::vec2(0.875f, 0.f));
     
     sprite->setAnimationSpeed(COIN, 4);
-    sprite->addKeyframe(COIN, glm::vec2(0.f, 0.5f));
-    sprite->addKeyframe(COIN, glm::vec2(0.25f, 0.5f));
-    sprite->addKeyframe(COIN, glm::vec2(0.5f, 0.5f));
-    sprite->addKeyframe(COIN, glm::vec2(0.75f, 0.5f));
+    sprite->addKeyframe(COIN, glm::vec2(0.f, 0.125f));
+    sprite->addKeyframe(COIN, glm::vec2(0.125f, 0.125f));
+    sprite->addKeyframe(COIN, glm::vec2(0.25f, 0.125f));
+    sprite->addKeyframe(COIN, glm::vec2(0.375f, 0.125f));
     
     sprite->setAnimationSpeed(BREAKABLE, 1);
     sprite->addKeyframe(BREAKABLE, glm::vec2(0.f, 0.f));
 
     sprite->setAnimationSpeed(UNBREAKABLE, 1);
-    sprite->addKeyframe(UNBREAKABLE, glm::vec2(0.75f, 0.f));
+    sprite->addKeyframe(UNBREAKABLE, glm::vec2(0.375f, 0.f));
 
     sprite->setAnimationSpeed(BREAK, 10);
-    sprite->addKeyframe(BREAK, glm::vec2(0.5f, 0.75f));
-    sprite->addKeyframe(BREAK, glm::vec2(0.75f, 0.75f));
-    sprite->addKeyframe(BREAK, glm::vec2(0.25f, 0.f));
+    sprite->addKeyframe(BREAK, glm::vec2(0.75f, 0.125f));
+    sprite->addKeyframe(BREAK, glm::vec2(0.875f, 0.125f));
+    sprite->addKeyframe(BREAK, glm::vec2(0.125f, 0.f));
 
     
     if (blockType == T_COIN) sprite->changeAnimation(COIN);

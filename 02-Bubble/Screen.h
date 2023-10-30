@@ -17,10 +17,11 @@ public:
 	Screen();
 	~Screen();
 
-	void init();
+	void init(int numScreen);
 	void update(int deltaTime);
 	void render();
-    bool getTransition();
+    int getTransition();
+	void setType(int newtype);
 
 private:
 	void initShaders();
@@ -29,11 +30,15 @@ private:
 
 private:
 	TileMap* map;
+	TileMap* bgmap;
+	
 	ShaderProgram texProgram;
     int selection;
     int allowChangeTimer;
+	int screenType; /* 0 = Main Menu; 1 = Instructions; 2 = Credits */
+	float rollcredits;
 
-    bool transition;
+    int nextScreen; /*-1 for no transition*/
 
 	Texture textSpriteSheet;
 	Sprite* textSprite;

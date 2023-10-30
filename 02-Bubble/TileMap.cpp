@@ -246,7 +246,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak, bool& flagpole)
+bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, bool koopaBreak, bool* flagpole, int* flagX)
 {
 	int x, y0, y1;
 	
@@ -268,13 +268,18 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 		//		return true;
 		else if (map[y*mapSize.x+x] > 0){
 			if (map[y*mapSize.x + x] == T_FLAGPOLE){
-				if (pos.x + size.x >= x*tileSize + 2)
-					flagpole = true;
+				if (pos.x + size.x >= x*tileSize + 2){
+					if (flagpole != NULL) *flagpole = true;
+					if (flagX != NULL) *flagX = x*tileSize - 7;
+				}
 				return false;
 
 			} else if (map[y*mapSize.x+x] == T_UPPERPOLE){
 				if (pos.x + size.x >= x*tileSize + 2 && pos.y + size.y >= y + 3)
-					flagpole = true;
+				{
+					if (flagpole != NULL) *flagpole = true;
+					if (flagX != NULL) *flagX = x*tileSize - 7;
+				}
 			}
 
 			return true;
@@ -351,7 +356,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 }
 
 
-bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool& flagpole)
+bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, float *posY, bool* flagpole, int* flagX)
 {
 	int x0, x1, y;
 	
@@ -371,7 +376,8 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 		}
 		else if (map[y*mapSize.x+x] > 0) {
 			if (map[y*mapSize.x + x] == T_FLAGPOLE) {
-				flagpole = true;
+				if (flagpole != NULL) *flagpole = true;
+				if (flagX != NULL) *flagX = x*tileSize - 7;
 				return false;
 			} else if (map[y*mapSize.x + x] == T_UPPERPOLE) return false;
 

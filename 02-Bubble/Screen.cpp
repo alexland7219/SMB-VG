@@ -9,27 +9,37 @@
 #define ENTER_KEY 13
 
 enum SelectOptions {
-    PLAY, INSTRUCTIONS, CREDITS, EXIT
+    PLAY_SELECT, INSTRUCTIONS_SELECT, CREDITS_SELECT, EXIT_SELECT
 };
+
+enum Screens {
+	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2
+};
+
 
 Screen::Screen()
 {
     map = NULL;
+	bgmap = NULL;
 }
 
 Screen::~Screen()
 {
     if (map != NULL) delete map;
+	if (bgmap!=NULL) delete bgmap;
 }
 
 
-void Screen::init(){
+void Screen::init(int numScreen){
     initShaders();
 	initGlyphTextures();
+	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
 
-    transition = false;
-    selection = PLAY;
+    nextScreen = -1;
+    selection = PLAY_SELECT;
     allowChangeTimer = 0;
+	rollcredits = -60;
+	screenType = numScreen;
 
     camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
@@ -38,17 +48,37 @@ void Screen::init(){
 
 void Screen::update(int deltaTime){
     if (allowChangeTimer > 0) allowChangeTimer -= deltaTime;
+	if (screenType == CREDITS) rollcredits += 0.4;
+	if (rollcredits > 210) rollcredits = -100;
 
     if (Game::instance().getSpecialKey(GLUT_KEY_UP) && allowChangeTimer <= 0){
-        selection = (selection - 1)%4;
+        selection = (selection + 3)%4;
         allowChangeTimer = 100;
     } else if (Game::instance().getSpecialKey(GLUT_KEY_DOWN) && allowChangeTimer <= 0){
         selection = (selection + 1)%4;
         allowChangeTimer = 100;
 
-    } else if (Game::instance().getKey(ENTER_KEY) && allowChangeTimer <= 0){
-        transition = true;
-    }
+    } else if (Game::instance().getKey(ENTER_KEY) && allowChangeTimer <= 0 && screenType == MAINMENU){
+		allowChangeTimer = 100;
+
+        switch (selection){
+			case 0:
+			nextScreen = LEVEL1;
+			break;
+			case 1:
+			nextScreen = INSTRUCTIONS;
+			break;
+			case 2:
+			nextScreen = CREDITS;
+			break;
+			case 3:
+			exit(0);
+		}
+    } else if ((screenType == INSTRUCTIONS || screenType == CREDITS) && Game::instance().getKey(ENTER_KEY) && allowChangeTimer <= 0){
+		// Go back to main menu
+		allowChangeTimer = 100;
+		nextScreen = MAINMENU;
+	}
 }
 
 void Screen::render(){
@@ -64,45 +94,87 @@ void Screen::render(){
 
 	glClearColor(.57f, 0.57f, 1.0f, 1.0f);
 
-    string hello = "WELCOME !";
-    renderText(hello, glm::vec2(50, 50));
+	bgmap->render();
 
-    if (selection == PLAY){
-        string enter = "= PLAY";
-        renderText(enter, glm::vec2(65, 100));
-    } else {
-        string enter = "PLAY";
-        renderText(enter, glm::vec2(75, 100));
-    }
+	switch (screenType){
+		case MAINMENU:
+		{
+			if (selection == PLAY_SELECT){
+				string enter = "= PLAY";
+				renderText(enter, glm::vec2(65, 20));
+			} else {
+				string enter = "PLAY";
+				renderText(enter, glm::vec2(75, 20));
+			}
 
-    if (selection == INSTRUCTIONS){
-        string enter = "= INSTRUCTIONS";
-        renderText(enter, glm::vec2(65, 120));
-    } else {
-        string enter = "INSTRUCTIONS";
-        renderText(enter, glm::vec2(75, 120));
-    }
+			if (selection == INSTRUCTIONS_SELECT){
+				string enter = "= INSTRUCTIONS";
+				renderText(enter, glm::vec2(65, 40));
+			} else {
+				string enter = "INSTRUCTIONS";
+				renderText(enter, glm::vec2(75, 40));
+			}
 
-    if (selection == CREDITS){
-        string enter = "= CREDITS";
-        renderText(enter, glm::vec2(65, 140));
-    } else {
-        string enter = "CREDITS";
-        renderText(enter, glm::vec2(75, 140));
-    }
+			if (selection == CREDITS_SELECT){
+				string enter = "= CREDITS";
+				renderText(enter, glm::vec2(65, 60));
+			} else {
+				string enter = "CREDITS";
+				renderText(enter, glm::vec2(75, 60));
+			}
 
-    if (selection == EXIT){
-        string enter = "= EXIT";
-        renderText(enter, glm::vec2(65, 160));
-    } else {
-        string enter = "EXIT";
-        renderText(enter, glm::vec2(75, 160));
-    }
+			if (selection == EXIT_SELECT){
+				string enter = "= EXIT";
+				renderText(enter, glm::vec2(65, 80));
+			} else {
+				string enter = "EXIT";
+				renderText(enter, glm::vec2(75, 80));
+			}
+
+		}
+		break;
+
+		case INSTRUCTIONS: // Instructions
+		{
+			string left1 = "USE ARROW KEYS TO";
+			string left2 = "MOVE LEFT OR RIGHT";
+
+			string jump = "PRESS SPACE TO JUMP";
+			string run = "PRESS SHIFT TO RUN";
+			string quit = "PRESS ESC TO QUIT";
+			string back = "= BACK";
+
+			renderText(left1, glm::vec2(20, 30));
+			renderText(left2, glm::vec2(20, 40));
+
+			renderText(jump, glm::vec2(20, 60));
+			renderText(run, glm::vec2(20, 90));
+			renderText(quit, glm::vec2(20, 120));
+			renderText(back, glm::vec2(20, 180));
+
+		}
+		break;
+
+		case CREDITS:
+
+		string ros = "ALEXANDRE ROS I ROGER";
+		string wickenden = "ALEX WICKENDEN DOMINGO";
+
+		renderText(ros, glm::vec2(35, rollcredits + 60));
+		renderText(wickenden, glm::vec2(35, rollcredits + 90));
+		break;
+	}
 
 }
 
-bool Screen::getTransition(){
-    return transition;
+int Screen::getTransition(){
+    return nextScreen;
+}
+
+void Screen::setType(int newtype){ 
+	screenType = newtype;
+	nextScreen = -1;
+	rollcredits = -90;
 }
 
 enum Glyphs {

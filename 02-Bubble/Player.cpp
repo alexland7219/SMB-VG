@@ -156,8 +156,7 @@ void Player::update(int deltaTime)
 
 		if (flagpoleTouchdown) posPlayer.x += 1.3;
 
-		bool f;
-		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, f) && !flagpoleTouchdown){
+		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, NULL, NULL) && !flagpoleTouchdown){
 			sprite->changeAnimation(MOVE_RIGHT);
 			// End of animation
 			flagpoleTouchdown = true;
@@ -291,8 +290,9 @@ void Player::update(int deltaTime)
 	{
 		posPlayer.y += FALL_STEP;
 		bool flagpole = false;
+		int flagX = 0;
 
-		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, flagpole))
+		if (map->collisionMoveDown(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT), &posPlayer.y, &flagpole, &flagX))
 		{
 			if (bFalling){
 				bFalling = false;
@@ -317,7 +317,7 @@ void Player::update(int deltaTime)
 			vel.x = 0;
 			vel.y = 0;
 			bigMario = false;
-			posPlayer.x -= 5;
+			posPlayer.x = flagX;
 
 		}
 	}
@@ -337,8 +337,9 @@ void Player::update(int deltaTime)
 
 	// Check for collisions left-right
 	bool flagpole = false;
+	int flagX = 0;
 
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false, flagpole) || 
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false, &flagpole, &flagX) || 
 		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false)){
 		posPlayer.x -= vel.x;
 	} else if (flagpole){
@@ -350,7 +351,7 @@ void Player::update(int deltaTime)
 		vel.x = 0;
 		vel.y = 0;
 		bigMario = false;
-		posPlayer.x += 6;
+		posPlayer.x = flagX;
 	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));

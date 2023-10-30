@@ -112,9 +112,7 @@ void Item::update(int deltaTime)
 	int off = (koopaShell ? 10 : 0);
 	bool koopaBreak = koopaShell && vel.x != 0;
 
-	bool q;
-
-	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, q) ||
+	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, NULL, NULL) ||
 		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
 		posItem.x -= vel.x;
 		vel.x = -vel.x;
@@ -125,8 +123,7 @@ void Item::update(int deltaTime)
 
 	posItem.y += FALL_STEP;
 
-	bool f;
-	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y, f)){
+	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y, NULL, NULL)){
 
 	}
 

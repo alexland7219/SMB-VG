@@ -25,6 +25,7 @@ public:
 	void init(int lvl);
 	void update(int deltaTime);
 	void render();
+	bool isOver();
 
 private:
 	void initShaders();
@@ -57,11 +58,13 @@ private:
 
 	glm::mat4 projection;
 
-	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus;
+	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus, winMus, zeldaMus;
 	bool playerDeathStarted;
 
 	int points, level, pointStreak;
 	float remTime;
+
+	bool gameOver;
 };
 
 

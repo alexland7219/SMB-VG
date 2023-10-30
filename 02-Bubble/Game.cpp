@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include <iostream>
 
 enum Screens {
 	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2
@@ -10,29 +11,46 @@ void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-	welcome.init();
+	screen.init(0);
+	nLives = 3;
 	//scene.init(1);
-	screen = MAINMENU;
+	screenState = MAINMENU;
 }
 
 bool Game::update(int deltaTime)
 {
 	//scene.update(deltaTime);
 	
-	switch (screen){
+	switch (screenState){
 		case MAINMENU:
+		case INSTRUCTIONS:
+		case CREDITS:
+		{
+			screen.update(deltaTime);
 
-		welcome.update(deltaTime);
-		if (welcome.getTransition()){
-			screen = LEVEL1;
-			scene.init(1);
+			int trans = screen.getTransition();
+			if (trans != -1){
+				screenState = trans;
+				screen.setType(trans);
+
+				std::cout << "New transition to screen " << trans << std::endl;
+
+				if (screenState == LEVEL1 || screenState == LEVEL2)
+					scene.init(1);
+
+			}
+		
 		}
-
 		break;
-
 		case LEVEL1:
 
 		scene.update(deltaTime);
+
+		if (scene.isOver()){
+			nLives -= 1;
+			std::cout << "One life less" << std::endl;
+			scene.init(1);
+		}
 		
 		break;
 	}
@@ -44,11 +62,15 @@ void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	switch (screen){
+	switch (screenState){
 		case MAINMENU:
-		welcome.render();
+		case INSTRUCTIONS:
+		case CREDITS:
+		screen.render();
 		break;
 		case LEVEL1:
+		case LEVEL2:
+		scene.render();
 		scene.render();
 		break;
 	}

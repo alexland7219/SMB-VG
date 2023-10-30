@@ -28,6 +28,7 @@ Scene::~Scene()
 		delete player;
 }
 
+bool Scene::isOver(){ return gameOver; }
 
 void Scene::init(int lvl)
 {
@@ -37,11 +38,12 @@ void Scene::init(int lvl)
 	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
 	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
 
-	// Level, coins, points, remainig time
+	// Level, coins, points, remainig time, gameOver?
 	level = lvl;
 	points = 0;
 	pointStreak = 0;
 	remTime = 400.f;
+	gameOver = false;
 
 	// Enemies initialization
 	enemies.clear();
@@ -56,13 +58,6 @@ void Scene::init(int lvl)
 
 	// Items initialization
 	items.clear();
-	/*items.resize(1);
-
-	items[0] = new Item();
-	items[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 2);
-	items[0]->setPosition(glm::vec2(10 * map->getTileSize(), 13 * map->getTileSize()));
-	items[0]->setTileMap(map);*/
-
 
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
@@ -76,6 +71,10 @@ void Scene::init(int lvl)
 	defaultMus.setLoop(true);
 	defaultMus.setVolume(30);
 	defaultMus.play();
+
+	zeldaMus.openFromFile("audio/zelda.ogg");
+	zeldaMus.setLoop(true);
+	zeldaMus.setVolume(60);
 
 	goombaMus.openFromFile("audio/goomba.ogg");
 	koopaMus.openFromFile("audio/koopa.ogg");
@@ -94,7 +93,7 @@ enum FloatingBlocks {
 void Scene::update(int deltaTime)
 {
 	remTime -= deltaTime / 1000.f;
-	if (remTime < 0) exit(0);
+	if (remTime < 0) gameOver = true;
 
 	map->update(deltaTime);
 
@@ -151,7 +150,8 @@ void Scene::update(int deltaTime)
 
 	if (player->isDead()){
 		// Game Over
-		exit(0);
+		gameOver = true;
+		return;
 	}
 	
 	glm::ivec2 playerPosAnt = player->getPosition();
@@ -259,6 +259,12 @@ void Scene::update(int deltaTime)
 		projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
 	}
 
+
+	// Secret :)
+	if (playerPos.x > 600 && defaultMus.getStatus() == 2){
+		defaultMus.stop();
+		zeldaMus.play();
+	}
 }
 
 void Scene::render()
