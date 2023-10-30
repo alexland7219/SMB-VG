@@ -4,14 +4,14 @@
 #include <iostream>
 
 enum Screens {
-	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2
+	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2, LIVES_LEFT
 };
 
 void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-	screen.init(0);
+	screen.init(MAINMENU);
 	nLives = 3;
 	//scene.init(1);
 	screenState = MAINMENU;
@@ -25,6 +25,7 @@ bool Game::update(int deltaTime)
 		case MAINMENU:
 		case INSTRUCTIONS:
 		case CREDITS:
+		case LIVES_LEFT:
 		{
 			screen.update(deltaTime);
 
@@ -33,23 +34,28 @@ bool Game::update(int deltaTime)
 				screenState = trans;
 				screen.setType(trans);
 
-				std::cout << "New transition to screen " << trans << std::endl;
-
-				if (screenState == LEVEL1 || screenState == LEVEL2)
+				if (screenState == LEVEL1 || screenState == LEVEL2){
 					scene.init(1);
+				}
 
 			}
 		
 		}
 		break;
 		case LEVEL1:
+		case LEVEL2:
 
 		scene.update(deltaTime);
 
 		if (scene.isOver()){
 			nLives -= 1;
-			std::cout << "One life less" << std::endl;
-			scene.init(1);
+
+			screen.init(LIVES_LEFT);
+			screenState = LIVES_LEFT;
+		}
+		else if (scene.hasWon() && screenState == LEVEL1){
+			screenState = LEVEL2;
+			scene.init(2);
 		}
 		
 		break;
@@ -66,6 +72,7 @@ void Game::render()
 		case MAINMENU:
 		case INSTRUCTIONS:
 		case CREDITS:
+		case LIVES_LEFT:
 		screen.render();
 		break;
 		case LEVEL1:
@@ -75,6 +82,10 @@ void Game::render()
 		break;
 	}
 
+}
+
+int Game::getLivesLeft() const{
+	return nLives;
 }
 
 void Game::keyPressed(int key)

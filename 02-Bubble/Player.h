@@ -24,6 +24,7 @@ public:
 	bool isDead();
 	bool won();
 	bool hasDeathAnimStarted();
+	bool hasWinningAnimStarted();
 	void die();
 	void jump(int height);
 	void mushroom();

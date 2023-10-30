@@ -26,6 +26,7 @@ public:
 	void update(int deltaTime);
 	void render();
 	bool isOver();
+	bool hasWon();
 
 private:
 	void initShaders();
@@ -64,7 +65,7 @@ private:
 	int points, level, pointStreak;
 	float remTime;
 
-	bool gameOver;
+	bool gameOver, won;
 };
 
 

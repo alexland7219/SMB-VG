@@ -163,7 +163,7 @@ void Player::update(int deltaTime)
 		}
 
 		//if (posPlayer.x > ) exit(0);
-		if (flagpoleAnimCounter > 5000) exit(0);
+		// if (flagpoleAnimCounter > 5000) exit(0);
 
 		return;
 	}
@@ -331,8 +331,8 @@ void Player::update(int deltaTime)
 		deadAnimCounter = 3000;
 		changeAnimation(DEATH);
 		// Play death sound
-		deathMus.play();
 		deathMus.setPlayingOffset(sf::Time::Zero);
+		deathMus.play();
 	}
 
 	// Check for collisions left-right
@@ -398,8 +398,8 @@ void Player::die(){
 	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
 	// Play death sound
-	deathMus.play();
 	deathMus.setPlayingOffset(sf::Time::Zero);
+	deathMus.play();
 
 }
 
@@ -429,7 +429,8 @@ void Player::flagpole(glm::vec2 posPole){
 }
 
 bool Player::isDead(){ return gameOver; }
-bool Player::won(){ return flagpoleAnimStart; }
+bool Player::won(){ return flagpoleAnimStart && (flagpoleAnimCounter > 5000); }
+bool Player::hasWinningAnimStarted(){ return flagpoleAnimStart; }
 bool Player::hasDeathAnimStarted(){ return deadAnimStart; }
 glm::vec2 Player::getPosition(){ return posPlayer; }
 glm::vec2 Player::getSize(){ return glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT); }

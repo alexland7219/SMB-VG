@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "Game.h"
 #include <SFML/Audio.hpp>
+#include <string> 
 
 #define SCREEN_X 0
 #define SCREEN_Y 0
@@ -29,14 +30,18 @@ Scene::~Scene()
 }
 
 bool Scene::isOver(){ return gameOver; }
+bool Scene::hasWon(){ return won; }
 
 void Scene::init(int lvl)
 {
 	initShaders();
 	initGlyphTextures();
 	initFloatTextures();
-	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
-	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
+
+	string levelX = "level0" + std::to_string(lvl);
+
+	map = TileMap::createTileMap("levels/" + levelX + ".txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
+	bgmap = TileMap::createTileMap("levels/" + levelX + "-bg.txt", glm::vec2(0, 0), texProgram, true);
 
 	// Level, coins, points, remainig time, gameOver?
 	level = lvl;
@@ -44,6 +49,7 @@ void Scene::init(int lvl)
 	pointStreak = 0;
 	remTime = 400.f;
 	gameOver = false;
+	won = false;
 
 	// Enemies initialization
 	enemies.clear();
@@ -135,10 +141,12 @@ void Scene::update(int deltaTime)
 		case 'S':
 		// New star
 		mushPos = map->getNewItemPos();
-		items.push_back(new Item());
+		floatsToRender.push_back(glm::vec4(STAR_BUMP, 600, 16*mushPos.x, 17*mushPos.y));
+
+		/*items.push_back(new Item());
 		items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 3);
 		items[items.size()-1]->setPosition(glm::vec2(16*mushPos.x, 16*mushPos.y));
-		items[items.size()-1]->setTileMap(map);
+		items[items.size()-1]->setTileMap(map);*/
 		map->flushNewItemQueue();
 		break;
 		case 'C':
@@ -253,15 +261,19 @@ void Scene::update(int deltaTime)
 	}
 
 	// Scroll to the right (bottom and up stay the same)
-	if (playerPos.x > camera.x + 2*SCREEN_WIDTH / 3 && playerPos.x - playerPosAnt.x > 0 && !player->won()){
+	if (playerPos.x > camera.x + 2*SCREEN_WIDTH / 3 && playerPos.x - playerPosAnt.x > 0 && !player->hasWinningAnimStarted()){
 		camera.x += (playerPos.x - playerPosAnt.x);
 		camera.y += (playerPos.x - playerPosAnt.x);
 		projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
 	}
 
+	// WIN
+	if (player->won()){
+		won = true;
+	}
 
 	// Secret :)
-	if (playerPos.x > 600 && defaultMus.getStatus() == 2){
+	if (playerPos.x > 800 && defaultMus.getStatus() == 2){
 		defaultMus.stop();
 		zeldaMus.play();
 	}

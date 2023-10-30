@@ -13,7 +13,7 @@ enum SelectOptions {
 };
 
 enum Screens {
-	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2
+	MAINMENU, INSTRUCTIONS, CREDITS, LEVEL1, LEVEL2, LIVES_LEFT
 };
 
 
@@ -79,6 +79,10 @@ void Screen::update(int deltaTime){
 		allowChangeTimer = 100;
 		nextScreen = MAINMENU;
 	}
+	else if (Game::instance().getKey(ENTER_KEY) && allowChangeTimer <= 0 && screenType == LIVES_LEFT){
+		allowChangeTimer = 100;
+		nextScreen = LEVEL1;
+	}
 }
 
 void Screen::render(){
@@ -92,8 +96,8 @@ void Screen::render(){
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	texProgram.setUniformInt("invertX", 0); // False
 
-	glClearColor(.57f, 0.57f, 1.0f, 1.0f);
-
+	if (screenType != LIVES_LEFT || Game::instance().getLivesLeft() != 1) glClearColor(.57f, 0.57f, 1.0f, 1.0f);
+	else glClearColor(0.8f, 0.0f, 0.0f, 1.0f);
 	bgmap->render();
 
 	switch (screenType){
@@ -156,12 +160,42 @@ void Screen::render(){
 		break;
 
 		case CREDITS:
+		{
+			string ros = "ALEXANDRE ROS I ROGER";
+			string wickenden = "ALEX WICKENDEN DOMINGO";
 
-		string ros = "ALEXANDRE ROS I ROGER";
-		string wickenden = "ALEX WICKENDEN DOMINGO";
+			renderText(ros, glm::vec2(35, rollcredits + 60));
+			renderText(wickenden, glm::vec2(35, rollcredits + 90));
+		}
+		break;
 
-		renderText(ros, glm::vec2(35, rollcredits + 60));
-		renderText(wickenden, glm::vec2(35, rollcredits + 90));
+		case LIVES_LEFT:
+		{
+			int lives = Game::instance().getLivesLeft();
+
+			string text;
+			string enter = "PRESS ENTER TO RETRY";
+			string ty    = "THANK YOU FOR PLAYING";
+
+			switch (lives){
+				case 0:
+				text = "GAME OVER";
+				renderText(text, glm::vec2(35, 60));
+				renderText(ty, glm::vec2(35, 160));
+				break;
+				case 1:
+				text = "ONE LIFE LEFT ...";
+				renderText(text, glm::vec2(35, 60));
+				renderText(enter, glm::vec2(35, 160));
+				break;
+				case 2:
+				text = "TWO LIVES LEFT";
+				renderText(text, glm::vec2(35, 60));
+				renderText(enter, glm::vec2(35, 160));
+
+			}
+		}
+
 		break;
 	}
 
@@ -214,7 +248,7 @@ void Screen::initGlyphTextures(){
 	textSprite->setAnimationSpeed(EXCLAMATION, 0);
 	textSprite->addKeyframe(EXCLAMATION, glm::vec2(0.1875f, 0.25f));
 	textSprite->setAnimationSpeed(EQUALS, 0);
-	textSprite->addKeyframe(EQUALS, glm::vec2(0.25f, 0.25f));
+	textSprite->addKeyframe(EQUALS, glm::vec2(0.0f, 0.375f));
 	textSprite->setAnimationSpeed(TWODOTS, 0);
 	textSprite->addKeyframe(TWODOTS, glm::vec2(0.3125f, 0.25f));
 	textSprite->setAnimationSpeed(APOSTROPHE, 0);
