@@ -10,21 +10,49 @@ void Game::init()
 {
 	bPlay = true;
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-	scene.init(1);
-	//screen = MAINMENU;
+	welcome.init();
+	//scene.init(1);
+	screen = MAINMENU;
 }
 
 bool Game::update(int deltaTime)
 {
-	scene.update(deltaTime);
+	//scene.update(deltaTime);
 	
+	switch (screen){
+		case MAINMENU:
+
+		welcome.update(deltaTime);
+		if (welcome.getTransition()){
+			screen = LEVEL1;
+			scene.init(1);
+		}
+
+		break;
+
+		case LEVEL1:
+
+		scene.update(deltaTime);
+		
+		break;
+	}
+
 	return bPlay;
 }
 
 void Game::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	scene.render();
+	
+	switch (screen){
+		case MAINMENU:
+		welcome.render();
+		break;
+		case LEVEL1:
+		scene.render();
+		break;
+	}
+
 }
 
 void Game::keyPressed(int key)

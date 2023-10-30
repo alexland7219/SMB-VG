@@ -3,7 +3,7 @@
 
 
 #include "Scene.h"
-
+#include "Screen.h"
 
 #define SCREEN_WIDTH 256	
 #define SCREEN_HEIGHT 240
@@ -45,6 +45,8 @@ public:
 private:
 	bool bPlay;                       // Continue to play game?
 	Scene scene;                      // Scene to render
+	Screen welcome;				      // Welcome screen
+
 	bool keys[256], specialKeys[256]; // Store key states so that 
 	                                  // we can have access at any time
 
