@@ -50,12 +50,19 @@ bool Game::update(int deltaTime)
 		if (scene.isOver()){
 			nLives -= 1;
 
+			scene.removePlayer();
 			screen.init(LIVES_LEFT);
 			screenState = LIVES_LEFT;
 		}
 		else if (scene.hasWon() && screenState == LEVEL1){
+
+
 			screenState = LEVEL2;
 			scene.init(2);
+		}
+		else if (scene.hasWon() && screenState == LEVEL2){
+			screenState = MAINMENU;
+			screen.setType(screenState);
 		}
 		
 		break;

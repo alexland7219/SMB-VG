@@ -27,6 +27,7 @@ public:
 	void render();
 	bool isOver();
 	bool hasWon();
+	void removePlayer();
 
 private:
 	void initShaders();

@@ -40,8 +40,9 @@ private:
 
     int nextScreen; /*-1 for no transition*/
 
-	Texture textSpriteSheet;
+	Texture textSpriteSheet, titleSpriteSheet;
 	Sprite* textSprite;
+	Sprite* titleSprite;
 
 	glm::mat4 projection;
     glm::vec4 camera;

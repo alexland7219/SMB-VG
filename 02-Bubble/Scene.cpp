@@ -91,6 +91,10 @@ void Scene::init(int lvl)
 	floatsToRender.clear();
 }
 
+void Scene::removePlayer(){
+	delete player;
+}
+
 enum FloatingBlocks {
 	ONE_H, TWO_H, FOUR_H, EIGHT_H, ONE_TH, TWO_TH, FOUR_TH, EIGHT_TH, COIN_BUMP, MUSH_BUMP, STAR_BUMP
 };
@@ -160,6 +164,8 @@ void Scene::update(int deltaTime)
 		// Game Over
 		gameOver = true;
 		return;
+	} else if (player->hasDeathAnimStarted()){
+		defaultMus.stop();
 	}
 	
 	glm::ivec2 playerPosAnt = player->getPosition();

@@ -44,6 +44,17 @@ void Screen::init(int numScreen){
     camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
 
+	// Title sprite
+	titleSpriteSheet.loadFromFile("images/title.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	titleSprite = Sprite::createSprite(glm::ivec2(176, 88), glm::vec2(1, 1), &titleSpriteSheet, &texProgram);
+
+	titleSprite->setNumberAnimations(1);
+
+	titleSprite->setAnimationSpeed(0, 0);
+	titleSprite->addKeyframe(0, glm::vec2(0, 0));
+
+	titleSprite->changeAnimation(0);
+
 }
 
 void Screen::update(int deltaTime){
@@ -96,43 +107,45 @@ void Screen::render(){
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	texProgram.setUniformInt("invertX", 0); // False
 
-	if (screenType != LIVES_LEFT || Game::instance().getLivesLeft() != 1) glClearColor(.57f, 0.57f, 1.0f, 1.0f);
-	else glClearColor(0.8f, 0.0f, 0.0f, 1.0f);
+	glClearColor(.57f, 0.57f, 1.0f, 1.0f);
 	bgmap->render();
 
 	switch (screenType){
 		case MAINMENU:
 		{
+			titleSprite->setPosition(glm::vec2(40,20));
+			titleSprite->render(false);
+
 			if (selection == PLAY_SELECT){
 				string enter = "= PLAY";
-				renderText(enter, glm::vec2(65, 20));
+				renderText(enter, glm::vec2(65, 120));
 			} else {
 				string enter = "PLAY";
-				renderText(enter, glm::vec2(75, 20));
+				renderText(enter, glm::vec2(75, 120));
 			}
 
 			if (selection == INSTRUCTIONS_SELECT){
 				string enter = "= INSTRUCTIONS";
-				renderText(enter, glm::vec2(65, 40));
+				renderText(enter, glm::vec2(65, 140));
 			} else {
 				string enter = "INSTRUCTIONS";
-				renderText(enter, glm::vec2(75, 40));
+				renderText(enter, glm::vec2(75, 140));
 			}
 
 			if (selection == CREDITS_SELECT){
 				string enter = "= CREDITS";
-				renderText(enter, glm::vec2(65, 60));
+				renderText(enter, glm::vec2(65, 160));
 			} else {
 				string enter = "CREDITS";
-				renderText(enter, glm::vec2(75, 60));
+				renderText(enter, glm::vec2(75, 160));
 			}
 
 			if (selection == EXIT_SELECT){
 				string enter = "= EXIT";
-				renderText(enter, glm::vec2(65, 80));
+				renderText(enter, glm::vec2(65, 180));
 			} else {
 				string enter = "EXIT";
-				renderText(enter, glm::vec2(75, 80));
+				renderText(enter, glm::vec2(75, 180));
 			}
 
 		}

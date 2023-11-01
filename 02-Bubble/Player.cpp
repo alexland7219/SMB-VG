@@ -303,8 +303,8 @@ void Player::update(int deltaTime)
 			{
 				if (allowChangeTimer <= 0) {
 					// Jump
+					jumpMus.setPlayingOffset(sf::Time::Zero);
 					jumpMus.play();
-        			jumpMus.setPlayingOffset(sf::Time::Zero);
 
 					jump(69);
 				}
@@ -398,8 +398,8 @@ void Player::die(){
 	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
 	// Play death sound
-	deathMus.setPlayingOffset(sf::Time::Zero);
 	deathMus.play();
+	deathMus.setPlayingOffset(sf::Time::Zero);
 
 }
 
