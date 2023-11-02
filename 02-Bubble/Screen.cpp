@@ -214,7 +214,7 @@ void Screen::setType(int newtype){
 enum Glyphs {
 	ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, XZERO, XONE, XTWO, XTHREE, XFOUR, XFIVE, XSIX, XSEVEN, XEIGHT, XNINE,
 	COIN, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, 
-	POINT, COMMA, DASH, EXCLAMATION, EQUALS, TWODOTS, APOSTROPHE, DOUBLEAPOSTROPHE
+	PT, COMMA, DASH, EXCLAMATION, EQUALS, TWODOTS, APOSTROPHE, DOUBLEAPOSTROPHE
 };
 
 void Screen::initGlyphTextures(){
@@ -239,8 +239,8 @@ void Screen::initGlyphTextures(){
 		textSprite->addKeyframe(x, glm::vec2(0.0625*(offset % (Q-A)), (x > P ? 0.1875f : 0.125f)));
 	}
 
-	textSprite->setAnimationSpeed(POINT, 0);
-	textSprite->addKeyframe(POINT, glm::vec2(0.f, 0.25f));
+	textSprite->setAnimationSpeed(PT, 0);
+	textSprite->addKeyframe(PT, glm::vec2(0.f, 0.25f));
 	textSprite->setAnimationSpeed(COMMA, 0);
 	textSprite->addKeyframe(COMMA, glm::vec2(0.0625f, 0.25f));
 	textSprite->setAnimationSpeed(DASH, 0);
@@ -273,7 +273,7 @@ void Screen::renderText(string& text, glm::vec2 pos){
 				textSprite->changeAnimation(COIN);
 				break;
 			case '.':
-				textSprite->changeAnimation(POINT);
+				textSprite->changeAnimation(PT);
 				break;
 			case ',':
 				textSprite->changeAnimation(COMMA);

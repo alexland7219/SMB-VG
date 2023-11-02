@@ -43,10 +43,11 @@ private:
 
 	Texture spritesheetBig;
 	Sprite* bigSprite;
+	Sprite* starbigSprite;
 
 	TileMap* map;
 
-	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown;
+	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario;
 	glm::vec2 vel, posPlayer;
 
 	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter;

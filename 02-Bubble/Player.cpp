@@ -9,7 +9,7 @@
 
 #define JUMP_ANGLE_STEP 4
 #define FALL_STEP 4
-#define MARIO_HEIGHT (bigMario ? 32 : 16)
+#define MARIO_HEIGHT (bigMario||starMario ? 32 : 16)
 #define MARIO_WIDTH 16
 
 #define MIN_WALK_SPEED 0.4
@@ -38,6 +38,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	
 	bJumping = false;
 	bigMario = false;
+	starMario = false;
 	bFalling = false;
 	gameOver = false;
 	allowChangeTimer = 0;
@@ -85,7 +86,6 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setAnimationSpeed(FLAGPOLE, 1);
 	sprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.125f));
 
-
 	sprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -93,7 +93,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	// Big Mario
 	spritesheetBig.loadFromFile("images/big-mario.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	bigSprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.25), &spritesheetBig, &shaderProgram);
+	bigSprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheetBig, &shaderProgram);
 	bigSprite->setNumberAnimations(8);
 
 	bigSprite->setAnimationSpeed(STAND_LEFT, 8);
@@ -113,21 +113,69 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	bigSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375f, 0.f));
 
 	bigSprite->setAnimationSpeed(SKID_RIGHT, 8);
-	bigSprite->addKeyframe(SKID_RIGHT, glm::vec2(0.375f, 0.25f));
+	bigSprite->addKeyframe(SKID_RIGHT, glm::vec2(0.375f, 0.125f));
 
 	bigSprite->setAnimationSpeed(SKID_LEFT, 8);
-	bigSprite->addKeyframe(SKID_LEFT, glm::vec2(0.f, 0.25f));
+	bigSprite->addKeyframe(SKID_LEFT, glm::vec2(0.f, 0.125f));
 
 	bigSprite->setAnimationSpeed(JUMP_RIGHT, 8);
-	bigSprite->addKeyframe(JUMP_RIGHT, glm::vec2(0.125f, 0.25f));
+	bigSprite->addKeyframe(JUMP_RIGHT, glm::vec2(0.125f, 0.125f));
 
 	bigSprite->setAnimationSpeed(JUMP_LEFT, 8);
-	bigSprite->addKeyframe(JUMP_LEFT, glm::vec2(0.25f, 0.25f));
-
+	bigSprite->addKeyframe(JUMP_LEFT, glm::vec2(0.25f, 0.125f));
 
 	bigSprite->changeAnimation(0);
 	tileMapDispl = tileMapPos;
 	bigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+
+	// Star Mario
+
+	spritesheetBig.loadFromFile("images/big-mario-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	starbigSprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheetBig, &shaderProgram);
+	starbigSprite->setNumberAnimations(9);
+
+	starbigSprite->setAnimationSpeed(STAND_LEFT, 8);
+	starbigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.f));
+	starbigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.25f));
+	starbigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.5f));
+	starbigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.75f));
+
+	starbigSprite->setAnimationSpeed(STAND_RIGHT, 8);
+	starbigSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.f, 0.f));
+	starbigSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.f, 0.25f));
+	starbigSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.f, 0.5f));
+	starbigSprite->addKeyframe(STAND_RIGHT, glm::vec2(0.f, 0.75f));
+
+	starbigSprite->setAnimationSpeed(MOVE_LEFT, 8);
+	starbigSprite->addKeyframe(MOVE_LEFT, glm::vec2(0.75f, 0.f));
+	starbigSprite->addKeyframe(MOVE_LEFT, glm::vec2(0.625f, 0.f));
+	starbigSprite->addKeyframe(MOVE_LEFT, glm::vec2(0.5f, 0.f));
+
+	starbigSprite->setAnimationSpeed(MOVE_RIGHT, 8);
+	starbigSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.125f, 0.f));
+	starbigSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.25f, 0.f));
+	starbigSprite->addKeyframe(MOVE_RIGHT, glm::vec2(0.375f, 0.f));
+
+	starbigSprite->setAnimationSpeed(SKID_RIGHT, 8);
+	starbigSprite->addKeyframe(SKID_RIGHT, glm::vec2(0.625f, 0.125f));
+
+	starbigSprite->setAnimationSpeed(SKID_LEFT, 8);
+	starbigSprite->addKeyframe(SKID_LEFT, glm::vec2(0.f, 0.125f));
+
+	starbigSprite->setAnimationSpeed(JUMP_RIGHT, 8);
+	starbigSprite->addKeyframe(JUMP_RIGHT, glm::vec2(0.125f, 0.125f));
+
+	starbigSprite->setAnimationSpeed(JUMP_LEFT, 8);
+	starbigSprite->addKeyframe(JUMP_LEFT, glm::vec2(0.5f, 0.125f));
+
+	starbigSprite->setAnimationSpeed(FLAGPOLE, 1);
+	starbigSprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.125f));
+
+	//////////////////////
+
+	starbigSprite->changeAnimation(0);
+	tileMapDispl = tileMapPos;
+	starbigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
 }
 
@@ -167,9 +215,11 @@ void Player::update(int deltaTime)
 
 		return;
 	}
-
-	if (!bigMario) sprite->update(deltaTime);
-	else bigSprite->update(deltaTime);
+	if (starMario) starbigSprite->update(deltaTime);
+	else {
+		if (!bigMario) sprite->update(deltaTime);
+		else bigSprite->update(deltaTime);
+	}
 
 	if (invincibleCounter > 0) invincibleCounter -= deltaTime;
 
@@ -181,6 +231,15 @@ void Player::update(int deltaTime)
 
 		// Wait for .5 second before pressing 'M'
 		allowChangeTimer = 500; 
+	}
+
+	if (allowChangeTimer <= 0 && (Game::instance().getKey('s') || Game::instance().getKey('S'))) {
+		starMario = !starMario;
+
+		if (starMario && !bigMario) posPlayer.y -= 16;
+
+		// Wait for .5 second before pressing 'M'
+		allowChangeTimer = 500;
 	}
 
 	allowChangeTimer -= deltaTime;
@@ -258,7 +317,6 @@ void Player::update(int deltaTime)
 	} else if (vel.x < 0 && !bJumping && !bFalling)
 	{
 		if (sprite->animation() != MOVE_LEFT && sprite->animation() != SKID_LEFT) changeAnimation(MOVE_LEFT);
-
 	}
 
 
@@ -356,17 +414,24 @@ void Player::update(int deltaTime)
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 	bigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+	starbigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
 void Player::changeAnimation(int animId){
 	sprite->changeAnimation(animId);
 	bigSprite->changeAnimation(animId);
+	starbigSprite->changeAnimation(animId);
 }
 
 void Player::render()
 {
-	if (!bigMario) sprite->render(false);
-	else bigSprite->render(false);
+	if (starMario) {
+		starbigSprite->render(false);
+	}
+	else {
+		if (!bigMario) sprite->render(false);
+		else bigSprite->render(false);
+	}
 }
 
 void Player::setTileMap(TileMap* tileMap)
