@@ -55,7 +55,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->setAnimationSpeed(DEATH, 1);
 			sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.f));
 
-			sprite->changeAnimation(0);
+			sprite->changeAnimation(0, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 			break;
@@ -76,7 +76,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->setAnimationSpeed(IN_SHELL, 1);
 			sprite->addKeyframe(IN_SHELL, glm::vec2(0.5f, 0.f));
 
-			sprite->changeAnimation(WALK_RIGHT);
+			sprite->changeAnimation(WALK_RIGHT, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 			break;
@@ -88,7 +88,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->setAnimationSpeed(WALK, 1);
 			sprite->addKeyframe(WALK, glm::vec2(0.f, 0.25f));
 
-			sprite->changeAnimation(WALK);
+			sprite->changeAnimation(WALK, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 			break;
@@ -134,7 +134,7 @@ void Item::update(int deltaTime)
 }
 
 void Item::changeAnimation(int animId) {
-	sprite->changeAnimation(animId);
+	sprite->changeAnimation(animId, false);
 }
 
 void Item::render()
@@ -198,7 +198,7 @@ void Item::die() {
 	deadAnimStart = true;
 	deadAnimCounter = 400;
 
-	sprite->changeAnimation(DEATH);
+	sprite->changeAnimation(DEATH, false);
 }
 
 void Item::stomp(const glm::ivec2& pos){
@@ -206,7 +206,7 @@ void Item::stomp(const glm::ivec2& pos){
 		case GOOMBA:
 		deadAnimStart = true;
 		deadAnimCounter = 400;
-		sprite->changeAnimation(DEATH);
+		sprite->changeAnimation(DEATH, false);
 		break;
 
 		case KOOPA:

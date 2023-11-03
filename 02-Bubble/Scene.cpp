@@ -52,6 +52,7 @@ void Scene::init(int lvl)
 	resetStreakCounter = 5000;
 	gameOver = false;
 	won = false;
+	defPaused = false;
 
 	// Enemies initialization
 	enemies.clear();
@@ -155,8 +156,19 @@ int getFloatByPoints(int pts){
 	}
 }
 
-void Scene::update(int deltaTime)
-{
+void Scene::update(int deltaTime){
+	// Star
+	if (player->getStar() && !defPaused) {
+		defaultMus.pause();
+		defPaused = true;
+	}
+	else if (!player->getStar() && defPaused) {
+		//defaultMus.setPlayingOffset(sf::Time::Zero);
+		defaultMus.play();
+		defPaused = false;
+	}
+
+	// Remaining time update
 	if (remTime < 0 && !playerFlagpoleStarted) gameOver = true;
 
 	if (!playerFlagpoleStarted) remTime -= deltaTime / 1000.f;
@@ -170,6 +182,7 @@ void Scene::update(int deltaTime)
 		pointStreak = 0;
 		resetStreakCounter = 5000;
 	}
+
 
 	map->update(deltaTime);
 
@@ -313,7 +326,7 @@ void Scene::update(int deltaTime)
 
 			enemies[e]->stomp(playerPos);
 			player->jump(30);
-		} else if (enemies[e]->collisionKill(playerPos, playerSize)){
+		} else if (enemies[e]->collisionKill(playerPos, playerSize) && !player->getStar()){
 			pointStreak = 0;
 			player->die();
 			playerDeathStarted = player->hasDeathAnimStarted();
@@ -483,35 +496,35 @@ void Scene::renderText(string& text, glm::vec2 pos){
 				++i;
 				continue;
 			case '#':
-				textSprite->changeAnimation(COIN);
+				textSprite->changeAnimation(COIN,false);
 				break;
 			case '.':
-				textSprite->changeAnimation(POINT);
+				textSprite->changeAnimation(POINT, false);
 				break;
 			case ',':
-				textSprite->changeAnimation(COMMA);
+				textSprite->changeAnimation(COMMA, false);
 				break;
 			case '-':
-				textSprite->changeAnimation(DASH);
+				textSprite->changeAnimation(DASH, false);
 				break;
 			case '!':
-				textSprite->changeAnimation(EXCLAMATION);
+				textSprite->changeAnimation(EXCLAMATION, false);
 				break;
 			case ':':
-				textSprite->changeAnimation(TWODOTS);
+				textSprite->changeAnimation(TWODOTS, false);
 				break;
 			case '=':
-				textSprite->changeAnimation(EQUALS);
+				textSprite->changeAnimation(EQUALS, false);
 				break;
 			case '\'':
-				textSprite->changeAnimation(APOSTROPHE);
+				textSprite->changeAnimation(APOSTROPHE, false);
 				break;
 			case '\"':
-				textSprite->changeAnimation(DOUBLEAPOSTROPHE);
+				textSprite->changeAnimation(DOUBLEAPOSTROPHE, false);
 				break;
 			default:
-				if (c >= int('0') && c <= int('9')) textSprite->changeAnimation(c - int('0'));
-				else if (c >= int('A') && c <= int('Z')) textSprite->changeAnimation(c - int('A') + A);
+				if (c >= int('0') && c <= int('9')) textSprite->changeAnimation(c - int('0'), false);
+				else if (c >= int('A') && c <= int('Z')) textSprite->changeAnimation(c - int('A') + A, false);
 		}
 		
 		textSprite->setPosition( glm::vec2(pos.x + 8*i + camera.x, pos.y));
@@ -560,7 +573,7 @@ void Scene::initFloatTextures(){
 }
 
 void Scene::renderFloating(int type, glm::vec2 pos){
-	floatSprite->changeAnimation(type);
+	floatSprite->changeAnimation(type, false);
 	floatSprite->setPosition( glm::vec2(pos.x, pos.y));
 	floatSprite->render(false);
 }
