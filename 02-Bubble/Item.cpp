@@ -92,6 +92,19 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
 			break;
+		case STAR:
+			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
+			sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
+			sprite->setNumberAnimations(1);
+
+			sprite->setAnimationSpeed(WALK, 1);
+			sprite->addKeyframe(WALK, glm::vec2(0.25f, 0.25f));
+
+			sprite->changeAnimation(WALK, false);
+			tileMapDispl = tileMapPos;
+			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			break;
+
 	}
 }
 
@@ -190,7 +203,7 @@ bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 }
 
 void Item::die() {
-	if (typeItem == MUSHROOM){
+	if (typeItem == MUSHROOM || typeItem == STAR){
 		itemKO = true;
 		return;
 	}

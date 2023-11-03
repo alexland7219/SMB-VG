@@ -28,6 +28,7 @@ public:
 	void die();
 	void jump(int height);
 	void mushroom();
+	void star();
 	void flagpole(glm::vec2 posPole);
 	bool getStar();
 

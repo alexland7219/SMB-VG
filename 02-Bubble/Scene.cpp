@@ -214,22 +214,12 @@ void Scene::update(int deltaTime){
 		// New mushroom
 		mushPos = map->getNewItemPos();
 		floatsToRender.push_back(glm::vec4(MUSH_BUMP, 600, 16*mushPos.x, 17*mushPos.y));
-		/*
-		items.push_back(new Item());
-		items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 2);
-		items[items.size()-1]->setPosition(glm::vec2(16*mushPos.x, 16*mushPos.y));
-		items[items.size()-1]->setTileMap(map);*/
 		map->flushNewItemQueue();
 		break;
 		case 'S':
 		// New star
 		mushPos = map->getNewItemPos();
 		floatsToRender.push_back(glm::vec4(STAR_BUMP, 600, 16*mushPos.x, 17*mushPos.y));
-
-		/*items.push_back(new Item());
-		items[items.size()-1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 3);
-		items[items.size()-1]->setPosition(glm::vec2(16*mushPos.x, 16*mushPos.y));
-		items[items.size()-1]->setTileMap(map);*/
 		map->flushNewItemQueue();
 		break;
 		case 'C':
@@ -344,12 +334,21 @@ void Scene::update(int deltaTime){
 		glm::ivec2 itemSize = items[i]->getSize();
 
 		if (items[i]->collisionStomped(playerPos, playerSize) || items[i]->collisionKill(playerPos, playerSize)){
-			points += 1000;
-			floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y - 16));
-			player->mushroom();
-			mushroomMus.play();
-			mushroomMus.setPlayingOffset(sf::Time::Zero);
-			items[i]->die();
+			// MUSHROOM
+			if (items[i]->getType() == 2){
+				points += 1000;
+				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y - 16));
+				player->mushroom();
+				mushroomMus.play();
+				mushroomMus.setPlayingOffset(sf::Time::Zero);
+				items[i]->die();
+
+			} else { // STAR
+				points += 2000;
+				floatsToRender.push_back(glm::vec4(TWO_TH, 400, playerPos.x, playerPos.y - 16));
+				player->star();
+				items[i]->die();
+			}
 		}
 
 	}

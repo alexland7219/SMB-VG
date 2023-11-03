@@ -336,11 +336,11 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 						++nCoins;
 					}
 				}
-				else if (map[y * mapSize.x + x] == -T_QUESTION_MUSH){
+				else if (map[y * mapSize.x + x] == -T_QUESTION_MUSH || map[y*mapSize.x + x] == -T_QUESTION_STAR){
 					addNewItem = blockMatrix[y * mapSize.x + x]->bumpBlock();
 					// Create mushroom item
 					if (addNewItem){
-						newItem = 'M';
+						newItem = (map[y * mapSize.x + x] == -T_QUESTION_MUSH ? 'M' : 'S');
 						posNewItem = glm::vec2(x, y - 1);
 					}
 				}

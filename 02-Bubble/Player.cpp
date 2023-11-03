@@ -626,6 +626,16 @@ void Player::mushroom(){
 
 }
 
+void Player::star(){
+	if (deadAnimStart) return;
+
+	starMario = true;
+	starTime = 12800;
+	starMus.setPlayingOffset(sf::Time::Zero);
+	starMus.play();
+
+}
+
 void Player::flagpole(glm::vec2 posPole){
 	setPosition(posPole);
 	changeAnimation(FLAGPOLE);
