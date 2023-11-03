@@ -270,35 +270,35 @@ void Screen::renderText(string& text, glm::vec2 pos){
 				++i;
 				continue;
 			case '#':
-				textSprite->changeAnimation(COIN);
+				textSprite->changeAnimation(COIN, false);
 				break;
 			case '.':
-				textSprite->changeAnimation(PT);
+				textSprite->changeAnimation(PT, false);
 				break;
 			case ',':
-				textSprite->changeAnimation(COMMA);
+				textSprite->changeAnimation(COMMA, false);
 				break;
 			case '-':
-				textSprite->changeAnimation(DASH);
+				textSprite->changeAnimation(DASH, false);
 				break;
 			case '!':
-				textSprite->changeAnimation(EXCLAMATION);
+				textSprite->changeAnimation(EXCLAMATION, false);
 				break;
 			case ':':
-				textSprite->changeAnimation(TWODOTS);
+				textSprite->changeAnimation(TWODOTS, false);
 				break;
 			case '=':
-				textSprite->changeAnimation(EQUALS);
+				textSprite->changeAnimation(EQUALS, false);
 				break;
 			case '\'':
-				textSprite->changeAnimation(APOSTROPHE);
+				textSprite->changeAnimation(APOSTROPHE, false);
 				break;
 			case '\"':
-				textSprite->changeAnimation(DOUBLEAPOSTROPHE);
+				textSprite->changeAnimation(DOUBLEAPOSTROPHE, false);
 				break;
 			default:
-				if (c >= int('0') && c <= int('9')) textSprite->changeAnimation(c - int('0'));
-				else if (c >= int('A') && c <= int('Z')) textSprite->changeAnimation(c - int('A') + A);
+				if (c >= int('0') && c <= int('9')) textSprite->changeAnimation(c - int('0'), false);
+				else if (c >= int('A') && c <= int('Z')) textSprite->changeAnimation(c - int('A') + A, false);
 		}
 		
 		textSprite->setPosition( glm::vec2(pos.x + 8*i, pos.y));

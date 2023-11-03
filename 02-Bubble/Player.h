@@ -29,6 +29,7 @@ public:
 	void jump(int height);
 	void mushroom();
 	void flagpole(glm::vec2 posPole);
+	bool getStar();
 
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
@@ -44,14 +45,15 @@ private:
 	Texture spritesheetBig;
 	Sprite* bigSprite;
 	Sprite* starbigSprite;
+	Sprite* starSprite;
 
 	TileMap* map;
 
 	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter;
-	sf::Music jumpMus, deathMus;
+	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter, starTime;
+	sf::Music jumpMus, deathMus, starMus;
 };
 
 

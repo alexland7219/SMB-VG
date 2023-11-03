@@ -64,9 +64,9 @@ void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int
     sprite->addKeyframe(BREAK, glm::vec2(0.125f, 0.f));
 
     
-    if (blockType == T_COIN) sprite->changeAnimation(COIN);
-    else if (blockType == T_QUESTION_COIN || blockType == T_QUESTION_MUSH || blockType == T_QUESTION_STAR) sprite->changeAnimation(QUESTION);
-    else sprite->changeAnimation(BREAKABLE);
+    if (blockType == T_COIN) sprite->changeAnimation(COIN, false);
+    else if (blockType == T_QUESTION_COIN || blockType == T_QUESTION_MUSH || blockType == T_QUESTION_STAR) sprite->changeAnimation(QUESTION, false);
+    else sprite->changeAnimation(BREAKABLE, false);
 
 
 	tileMapDispl = tileMapPos;
@@ -80,7 +80,7 @@ void Block::update(int deltaTime){
         else if (animTimer > 0){
             posItem.y += 1;
             if (blockType == T_QUESTION_COIN || blockType == T_QUESTION_MUSH || blockType == T_QUESTION_STAR){
-                sprite->changeAnimation(UNBREAKABLE);
+                sprite->changeAnimation(UNBREAKABLE, false);
                 blockType = T_UNBREAKABLE;
             } 
         }
@@ -117,7 +117,7 @@ void Block::breakBlock()
 {
     if (blockKO) return;
 
-    sprite->changeAnimation(BREAK);
+    sprite->changeAnimation(BREAK, false);
     animBreak = true;
     breakTimer = 200;
     breakblock.play();
