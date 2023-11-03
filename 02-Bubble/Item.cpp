@@ -228,6 +228,7 @@ void Item::stomp(const glm::ivec2& pos){
 }
 
 bool Item::isDead(){ return itemKO; }
+bool Item::hasDeathAnimStarted(){ return deadAnimStart || itemKO; }
 bool Item::killsEnemies() { return typeItem == KOOPA && koopaShell && vel.x != 0; }
 
 glm::vec2 Item::getPosition(){ return posItem; }

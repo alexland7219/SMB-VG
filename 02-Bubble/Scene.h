@@ -61,9 +61,9 @@ private:
 	glm::mat4 projection;
 
 	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus, winMus, zeldaMus;
-	bool playerDeathStarted;
+	bool playerDeathStarted, playerFlagpoleStarted;
 
-	int points, level, pointStreak;
+	int points, level, pointStreak, resetStreakCounter;
 	float remTime;
 
 	bool gameOver, won;

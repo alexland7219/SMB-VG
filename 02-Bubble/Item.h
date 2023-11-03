@@ -24,6 +24,7 @@ public:
 
 	void stomp(const glm::ivec2& posPlayer);
 	bool isDead();
+	bool hasDeathAnimStarted();
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
 	int getType();

@@ -32,6 +32,7 @@ Scene::~Scene()
 bool Scene::isOver(){ return gameOver; }
 bool Scene::hasWon(){ return won; }
 
+
 void Scene::init(int lvl)
 {
 	initShaders();
@@ -48,6 +49,7 @@ void Scene::init(int lvl)
 	points = 0;
 	pointStreak = 0;
 	remTime = 400.f;
+	resetStreakCounter = 5000;
 	gameOver = false;
 	won = false;
 
@@ -88,6 +90,7 @@ void Scene::init(int lvl)
 	mushroomMus.setVolume(15);
 
 	playerDeathStarted = false;
+	playerFlagpoleStarted = false;
 	floatsToRender.clear();
 }
 
@@ -99,11 +102,74 @@ enum FloatingBlocks {
 	ONE_H, TWO_H, FOUR_H, EIGHT_H, ONE_TH, TWO_TH, FOUR_TH, EIGHT_TH, COIN_BUMP, MUSH_BUMP, STAR_BUMP
 };
 
+int getPtsByStreak(int streak){
+	switch (streak){
+		case 0:
+		return 400;
+		case 1:
+		return 800;
+		case 2:
+		return 1000;
+		case 3:
+		return 2000;
+		case 4:
+		return 4000;
+		default:
+		return 8000;
+	}
+}
+
+int getPtsFromFlagpole(int height){
+	float perc = 147.5 - 0.709*height;
+
+	if (perc < 12.5) return 100;
+	else if (perc < 25) return 200;
+	else if (perc < 37.5) return 400;
+	else if (perc < 50) return 800;
+	else if (perc < 62.5) return 1000;
+	else if (perc < 75) return 2000;
+	else if (perc < 87.5) return 4000;
+	else return 8000;
+
+}
+
+
+int getFloatByPoints(int pts){
+	switch (pts){
+		case 100:
+		return ONE_H;
+		case 200:
+		return TWO_H;
+		case 400:
+		return FOUR_H;
+		case 800:
+		return EIGHT_H;
+		case 1000:
+		return ONE_TH;
+		case 2000:
+		return TWO_TH;
+		case 4000:
+		return FOUR_TH;
+		default:
+		return EIGHT_TH;
+	}
+}
 
 void Scene::update(int deltaTime)
 {
-	remTime -= deltaTime / 1000.f;
-	if (remTime < 0) gameOver = true;
+	if (remTime < 0 && !playerFlagpoleStarted) gameOver = true;
+
+	if (!playerFlagpoleStarted) remTime -= deltaTime / 1000.f;
+	else if (remTime > 0){
+		remTime -= deltaTime / 10.f;
+		points += (deltaTime);
+	}
+
+	resetStreakCounter -= deltaTime;
+	if (resetStreakCounter < 0){
+		pointStreak = 0;
+		resetStreakCounter = 5000;
+	}
 
 	map->update(deltaTime);
 
@@ -164,9 +230,8 @@ void Scene::update(int deltaTime)
 		// Game Over
 		gameOver = true;
 		return;
-	} else if (player->hasDeathAnimStarted()){
-		defaultMus.stop();
-	}
+	} 
+	else if (player->hasDeathAnimStarted()) defaultMus.stop();
 	
 	glm::ivec2 playerPosAnt = player->getPosition();
 
@@ -174,6 +239,16 @@ void Scene::update(int deltaTime)
 	player->update(deltaTime);
 	glm::ivec2 playerPos = player->getPosition();
 	glm::ivec2 playerSize = player->getSize();
+
+	// Check if the player has touched flagpole
+	if (player->hasWinningAnimStarted() && !playerFlagpoleStarted){
+		playerFlagpoleStarted = true;
+
+		int inc = getPtsFromFlagpole(playerPos.y);
+		points += inc;
+		floatsToRender.push_back(glm::vec4(getFloatByPoints(inc), 400, playerPos.x - 5, playerPos.y - 16));
+		//std::cout << int(perc) << std::end;
+	}
 
 	// Update enemies
 	for (int e = 0; e < enemies.size(); ++e){
@@ -185,22 +260,24 @@ void Scene::update(int deltaTime)
 
 		// First check for collision between enemies
 		for (int ee = 0; ee < enemies.size(); ++ee){
-			if (ee == e || enemies[ee]->isDead()) continue;
+			if (ee == e || enemies[ee]->hasDeathAnimStarted() || enemies[e]->hasDeathAnimStarted()) continue;
 
 			if (enemies[ee]->collisionKill(enemyPos, enemySize)){
 				// Collision
+				int inc = getPtsByStreak(pointStreak);
+
 				if (enemies[ee]->killsEnemies()){
 					enemies[e]->die();
-					points += glm::min((1 << pointStreak), 8)*1000;
+					points += inc;
 					++pointStreak;
-					floatsToRender.push_back(glm::vec4(glm::min(EIGHT_TH + 0, ONE_TH + pointStreak), 400, enemyPos.x, enemyPos.y - 16));
+					floatsToRender.push_back(glm::vec4(getFloatByPoints(inc), 400, enemyPos.x, enemyPos.y - 16));
 				}
 				else if (enemies[e]->killsEnemies()){
 					enemies[ee]->die();
-					points += glm::min((1 << pointStreak), 8)*1000;
+					points += getPtsByStreak(pointStreak);
 					++pointStreak;
 					glm::vec2 otherEnemyPos = enemies[ee]->getPosition();
-					floatsToRender.push_back(glm::vec4(glm::min(EIGHT_TH + 0, ONE_TH + pointStreak), 400, otherEnemyPos.x, otherEnemyPos.y - 16));
+					floatsToRender.push_back(glm::vec4(getFloatByPoints(inc), 400, otherEnemyPos.x, otherEnemyPos.y - 16));
 				} 
 				else {
 					enemies[ee]->invertXVelocity();
@@ -212,25 +289,27 @@ void Scene::update(int deltaTime)
 
 		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
 			int enemyType = enemies[e]->getType();
-			++pointStreak;
 
-			int spriteThatWillRender = glm::min(EIGHT_TH + 0, ONE_TH + pointStreak);
+			int inc = getPtsByStreak(pointStreak);
+			int spriteThatWillRender = getFloatByPoints(inc);
 
 			switch (enemyType){
 				case 0: // GOOMBA
 				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
-				points += glm::min((1 << pointStreak), 8) * 1000;
+				points += getPtsByStreak(pointStreak);
 				goombaMus.play();
 				goombaMus.setPlayingOffset(sf::Time::Zero);
 				break;
 				case 1: // KOOPA TROOPA
 				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
-				points += glm::min((1 << pointStreak), 8) * 1000;
+				points += getPtsByStreak(pointStreak);
 				koopaMus.play();
 				koopaMus.setPlayingOffset(sf::Time::Zero);
 				break;
 
 			}
+
+			++pointStreak;
 
 			enemies[e]->stomp(playerPos);
 			player->jump(30);

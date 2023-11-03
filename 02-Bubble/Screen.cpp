@@ -261,7 +261,7 @@ void Screen::initGlyphTextures(){
 	textSprite->setAnimationSpeed(EXCLAMATION, 0);
 	textSprite->addKeyframe(EXCLAMATION, glm::vec2(0.1875f, 0.25f));
 	textSprite->setAnimationSpeed(EQUALS, 0);
-	textSprite->addKeyframe(EQUALS, glm::vec2(0.0f, 0.375f));
+	textSprite->addKeyframe(EQUALS, glm::vec2(0.0f, 0.5625f));
 	textSprite->setAnimationSpeed(TWODOTS, 0);
 	textSprite->addKeyframe(TWODOTS, glm::vec2(0.3125f, 0.25f));
 	textSprite->setAnimationSpeed(APOSTROPHE, 0);
