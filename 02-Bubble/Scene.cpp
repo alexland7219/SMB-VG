@@ -13,7 +13,6 @@
 #define INIT_PLAYER_Y_TILES 4
 
 
-
 Scene::Scene()
 {
 	map = NULL;
@@ -83,12 +82,15 @@ void Scene::init(int lvl)
 
 	zeldaMus.openFromFile("audio/zelda.ogg");
 	zeldaMus.setLoop(true);
-	zeldaMus.setVolume(60);
+	zeldaMus.setVolume(50);
 
 	goombaMus.openFromFile("audio/goomba.ogg");
 	koopaMus.openFromFile("audio/koopa.ogg");
 	mushroomMus.openFromFile("audio/Mushroom.ogg");
 	mushroomMus.setVolume(15);
+
+	winMus.openFromFile("audio/win.ogg");
+	winMus.setVolume(50);
 
 	playerDeathStarted = false;
 	playerFlagpoleStarted = false;
@@ -247,6 +249,12 @@ void Scene::update(int deltaTime){
 	if (player->hasWinningAnimStarted() && !playerFlagpoleStarted){
 		playerFlagpoleStarted = true;
 
+		defaultMus.stop();
+		zeldaMus.stop();
+		winMus.play();
+		winMus.setPlayingOffset(sf::Time::Zero);
+
+
 		int inc = getPtsFromFlagpole(playerPos.y);
 		points += inc;
 		floatsToRender.push_back(glm::vec4(getFloatByPoints(inc), 400, playerPos.x - 5, playerPos.y - 16));
@@ -370,7 +378,7 @@ void Scene::update(int deltaTime){
 	}
 
 	// Secret :)
-	if (playerPos.x > 800 && defaultMus.getStatus() == 2){
+	if (playerPos.x > 800 && defaultMus.getStatus() == 2 && !playerFlagpoleStarted){
 		defaultMus.stop();
 		zeldaMus.play();
 	}

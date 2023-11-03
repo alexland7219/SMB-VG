@@ -360,8 +360,8 @@ void Player::update(int deltaTime)
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
-			starMus.setPlayingOffset(sf::Time::Zero);
 			starMus.play();
+			starMus.setPlayingOffset(sf::Time::Zero);
 		}
 		else {
 			starMus.stop();
@@ -491,8 +491,8 @@ void Player::update(int deltaTime)
 			{
 				if (allowChangeTimer <= 0) {
 					// Jump
-					jumpMus.setPlayingOffset(sf::Time::Zero);
 					jumpMus.play();
+					jumpMus.setPlayingOffset(sf::Time::Zero);
 
 					jump(69);
 				}
@@ -523,8 +523,10 @@ void Player::update(int deltaTime)
 		deadAnimCounter = 3000;
 		changeAnimation(DEATH);
 		// Play death sound
-		deathMus.setPlayingOffset(sf::Time::Zero);
+		starMus.stop();
 		deathMus.play();
+		deathMus.setPlayingOffset(sf::Time::Zero);
+
 	}
 
 	// Check for collisions left-right
@@ -601,6 +603,8 @@ void Player::die(){
 	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
 	// Play death sound
+	starMus.stop();
+
 	deathMus.play();
 	deathMus.setPlayingOffset(sf::Time::Zero);
 
@@ -631,18 +635,19 @@ void Player::star(){
 
 	starMario = true;
 	starTime = 12800;
-	starMus.setPlayingOffset(sf::Time::Zero);
 	starMus.play();
-
+	starMus.setPlayingOffset(sf::Time::Zero);
 }
 
 void Player::flagpole(glm::vec2 posPole){
+	starMus.stop();
+
 	setPosition(posPole);
 	changeAnimation(FLAGPOLE);
 }
 
 bool Player::isDead(){ return gameOver; }
-bool Player::won(){ return flagpoleAnimStart && (flagpoleAnimCounter > 5000); }
+bool Player::won(){ return flagpoleAnimStart && (flagpoleAnimCounter > 7000); }
 bool Player::hasWinningAnimStarted(){ return flagpoleAnimStart; }
 bool Player::hasDeathAnimStarted(){ return deadAnimStart; }
 glm::vec2 Player::getPosition(){ return posPlayer; }
