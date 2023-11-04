@@ -31,17 +31,18 @@ public:
 
 	void invertXVelocity();
 	void die();
+	void jump();
 	bool killsEnemies();
 
 private:
 	bool bJumping, bFalling;
 	glm::ivec2 tileMapDispl;
-	int jumpAngle, startY;
+	int jumpAngle, startY, starjumpHeight;
 	Texture spritesheet;
 	Sprite* sprite;
 
 	bool koopaShell;
-	bool deadAnimStart, itemKO;
+	bool deadAnimStart, itemKO, goingUp;
 	int deadAnimCounter;
 
 	int typeItem;

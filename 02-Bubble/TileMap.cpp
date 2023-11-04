@@ -253,6 +253,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 	x = (pos.x + size.x - 1) / tileSize;
 	y0 = pos.y / tileSize;
 	y1 = glm::min((pos.y + size.y - 1) / tileSize, 14.0f);
+	cout << "yo = " << y0 << "  y1 = " << y1 << endl;
 	for(int y=y0; y<=y1; y++)
 	{		
 		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){

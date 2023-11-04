@@ -6,7 +6,7 @@
 #include "Game.h"
 
 
-#define JUMP_ANGLE_STEP 4
+#define JUMP_ANGLE_STEP 3
 #define JUMP_HEIGHT 69
 #define FALL_STEP 3
 #define ITEM_HEIGHT (typeItem == KOOPA ? 24 : 16)
@@ -39,7 +39,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 	itemKO = false;
 	koopaShell = false;
 	typeItem = type;
-	vel = glm::vec2(0.5f, 0.f);
+	vel = glm::vec2((type == STAR ? 1.0f : 0.5f), 0.f);
 
 	// TYPE 0: Goomba
 	switch (type){
@@ -118,27 +118,62 @@ void Item::update(int deltaTime)
 
 	sprite->update(deltaTime);
 
-	posItem.x += vel.x;
-
 
 	// Check for collisions left-right
 	int off = (koopaShell ? 10 : 0);
+	int off2 = (typeItem==STAR ? 2 : 0);
 	bool koopaBreak = koopaShell && vel.x != 0;
-
-	if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, NULL, NULL) ||
-		map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
-		posItem.x -= vel.x;
-		vel.x = -vel.x;
-
-		if (vel.x < 0 && typeItem == KOOPA && !koopaShell) changeAnimation(WALK_LEFT);
-		else if (typeItem == KOOPA && !koopaShell) changeAnimation(WALK_RIGHT);
+	cout << "pos.y = " << posItem.y << endl;
+	if (typeItem != STAR) {
+		if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, NULL, NULL) ||
+			map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
+			posItem.x -= vel.x;
+			vel.x = -vel.x;
+			cout << "LEFTRIGHT" << endl;
+			if (vel.x < 0 && typeItem == KOOPA && !koopaShell) changeAnimation(WALK_LEFT);
+			else if (typeItem == KOOPA && !koopaShell) changeAnimation(WALK_RIGHT);
+		}
+		posItem.y += FALL_STEP;
+	}
+	else {
+		if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak, NULL, NULL)) {
+			if (vel.x > 0) {
+				cout << "RIGHT" << endl;
+				posItem.x -= vel.x;
+				vel.x = -vel.x;
+			}
+		}
+		else if (map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak)) {
+			if (vel.x < 0) {
+				cout << "LEFT" << endl;
+				posItem.x -= vel.x;
+					vel.x = -vel.x;
+			}
+		}
 	}
 
-	posItem.y += FALL_STEP;
-
-	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT), &posItem.y, NULL, NULL)){
-
+	if (map->collisionMoveDown(posItem, glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT+off2), &posItem.y, NULL, NULL)){
+		if (typeItem == STAR) jump();
 	}
+
+	if (typeItem == STAR)
+	{
+		jumpAngle += JUMP_ANGLE_STEP;
+
+		if (jumpAngle <= 180) vel.y = -2*(cos(3.14159f * jumpAngle / 180.f));
+		
+		if (map->collisionMoveUp(posItem+glm::vec2(0,-off2), glm::ivec2(16, 16), &posItem.y, false) && bJumping) {
+			// UP COLLISION
+			cout << "UP" << endl;
+			bJumping = false;
+			jumpAngle = 180-jumpAngle;
+		}
+	}
+
+	vel.y = glm::clamp(vel.y, -2.f, 2.f);
+
+	cout << vel.y << endl;
+	posItem += vel;
 
 	if (posItem.x < 0) posItem.x = 0;
 	if (posItem.y >= 240) itemKO = true; 
@@ -238,6 +273,13 @@ void Item::stomp(const glm::ivec2& pos){
 		}
 	}
 
+}
+
+void Item::jump() {
+	bJumping = true;
+	jumpAngle = 0;
+	startY = posItem.y;
+	cout << "jump" << endl;
 }
 
 bool Item::isDead(){ return itemKO; }
