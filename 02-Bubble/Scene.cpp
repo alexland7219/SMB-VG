@@ -55,14 +55,14 @@ void Scene::init(int lvl)
 
 	// Enemies initialization
 	enemies.clear();
-	//enemies.resize(4);
-	/*for (int e = 0; e < 4; ++e) {
+	enemies.resize(4);
+	for (int e = 0; e < 4; ++e) {
 		enemies[e] = new Item();
 		if (e != 3) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
 		else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
 		enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + e*40, 10 * map->getTileSize()));
 		enemies[e]->setTileMap(map);
-	}*/
+	}
 
 	// Items initialization
 	items.clear();

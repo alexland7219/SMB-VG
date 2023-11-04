@@ -123,13 +123,13 @@ void Item::update(int deltaTime)
 	int off = (koopaShell ? 10 : 0);
 	int off2 = (typeItem==STAR ? 2 : 0);
 	bool koopaBreak = koopaShell && vel.x != 0;
-	cout << "pos.y = " << posItem.y << endl;
+
 	if (typeItem != STAR) {
 		if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak, NULL, NULL) ||
 			map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off), koopaBreak)) {
 			posItem.x -= vel.x;
 			vel.x = -vel.x;
-			cout << "LEFTRIGHT" << endl;
+
 			if (vel.x < 0 && typeItem == KOOPA && !koopaShell) changeAnimation(WALK_LEFT);
 			else if (typeItem == KOOPA && !koopaShell) changeAnimation(WALK_RIGHT);
 		}
@@ -138,16 +138,14 @@ void Item::update(int deltaTime)
 	else {
 		if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak, NULL, NULL)) {
 			if (vel.x > 0) {
-				cout << "RIGHT" << endl;
 				posItem.x -= vel.x;
 				vel.x = -vel.x;
 			}
 		}
 		else if (map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak)) {
 			if (vel.x < 0) {
-				cout << "LEFT" << endl;
 				posItem.x -= vel.x;
-					vel.x = -vel.x;
+				vel.x = -vel.x;
 			}
 		}
 	}
@@ -164,7 +162,6 @@ void Item::update(int deltaTime)
 		
 		if (map->collisionMoveUp(posItem+glm::vec2(0,-off2), glm::ivec2(16, 16), &posItem.y, false) && bJumping) {
 			// UP COLLISION
-			cout << "UP" << endl;
 			bJumping = false;
 			jumpAngle = 180-jumpAngle;
 		}
@@ -172,7 +169,6 @@ void Item::update(int deltaTime)
 
 	vel.y = glm::clamp(vel.y, -2.f, 2.f);
 
-	cout << vel.y << endl;
 	posItem += vel;
 
 	if (posItem.x < 0) posItem.x = 0;
@@ -279,7 +275,6 @@ void Item::jump() {
 	bJumping = true;
 	jumpAngle = 0;
 	startY = posItem.y;
-	cout << "jump" << endl;
 }
 
 bool Item::isDead(){ return itemKO; }
