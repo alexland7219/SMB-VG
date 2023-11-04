@@ -164,7 +164,7 @@ void Scene::update(int deltaTime){
 		defaultMus.pause();
 		defPaused = true;
 	}
-	else if (!player->getStar() && defPaused) {
+	else if (!player->getStar() && defPaused && !playerFlagpoleStarted) {
 		//defaultMus.setPlayingOffset(sf::Time::Zero);
 		defaultMus.play();
 		defPaused = false;
