@@ -1,16 +1,13 @@
 #include <iostream>
-#include <vector>
 #include <SFML/Audio.hpp>
 #include "Sound.h"
 
 enum Songs {
 	JUMP, DEATH, COIN, BREAK, MUSHROOM, STAR, WIN, MAINTHEME, ZELDA, GOOMBA, KOOPA
-};
+}; //  0     1     2       3       4      5    6      7          8      9     10
 
 void Sound::init()
 {
-	musicVect.resize(11);
-
 	musicVect[JUMP].openFromFile("audio/jump.ogg");
 	musicVect[JUMP].setVolume(20);
 
@@ -29,12 +26,12 @@ void Sound::init()
 	musicVect[STAR].openFromFile("audio/star_theme.ogg");
 	musicVect[STAR].setVolume(100);
 
-	musicVect[WIN].openFromFile("audio/star_theme.ogg");
+	musicVect[WIN].openFromFile("audio/win.ogg");
 	musicVect[WIN].setVolume(50);
 
-	musicVect[STAR].openFromFile("audio/track1.ogg");
-	musicVect[STAR].setVolume(25);
-	musicVect[STAR].setLoop(true);
+	musicVect[MAINTHEME].openFromFile("audio/track1.ogg");
+	musicVect[MAINTHEME].setVolume(25);
+	musicVect[MAINTHEME].setLoop(true);
 
 	musicVect[ZELDA].openFromFile("audio/zelda.ogg");
 	musicVect[ZELDA].setVolume(40);
@@ -50,6 +47,18 @@ void Sound::play(int songIdx) {
 
 	musicVect[songIdx].setPlayingOffset(sf::Time::Zero);
 	musicVect[songIdx].play();
+}
+
+void Sound::stop(int songIdx){
+	if (songIdx < 0 || songIdx > 10) return;
+
+	musicVect[songIdx].stop();
+}
+
+int Sound::getStatus(int songIdx){
+	if (songIdx < 0 || songIdx > 10) return -1;
+
+	return musicVect[songIdx].getStatus();
 }
 
 void Sound::stopAll() {

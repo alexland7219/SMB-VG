@@ -3,9 +3,8 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Player.h"
+#include "Sound.h"
 #include "Game.h"
-#include <SFML/Audio.hpp>
-#include <SFML/System.hpp>
 
 #define JUMP_ANGLE_STEP 4
 #define FALL_STEP 4
@@ -29,16 +28,7 @@ enum PlayerAnims
 
 
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
-{
-	jumpMus.openFromFile("audio/jump.ogg");
-	jumpMus.setVolume(20);
-
-	deathMus.openFromFile("audio/death.ogg");
-	deathMus.setVolume(100);
-
-	starMus.openFromFile("audio/star_theme.ogg");
-	starMus.setVolume(100);
-	
+{	
 	bJumping = false;
 	bigMario = false;
 	starMario = false;
@@ -297,7 +287,7 @@ void Player::update(int deltaTime)
 	if (starMario) {
 		starTime -= deltaTime;
 		if (starTime <= 0) {
-			starMus.stop();
+			Sound::instance().stop(5); // Stop Star Music
 			starMario = !starMario;
 		}
 	}
@@ -360,11 +350,10 @@ void Player::update(int deltaTime)
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
-			starMus.play();
-			starMus.setPlayingOffset(sf::Time::Zero);
+			Sound::instance().play(5); // Play star music
 		}
 		else {
-			starMus.stop();
+			Sound::instance().stop(5); // Stop only star music
 		}
 		//if (starMario && !bigMario) posPlayer.y -= 16;
 
@@ -491,8 +480,7 @@ void Player::update(int deltaTime)
 			{
 				if (allowChangeTimer <= 0) {
 					// Jump
-					jumpMus.play();
-					jumpMus.setPlayingOffset(sf::Time::Zero);
+					Sound::instance().play(0); // Play jump music
 
 					jump(69);
 				}
@@ -501,7 +489,7 @@ void Player::update(int deltaTime)
 			flagpoleAnimStart = true;
 			if (starMario) {
 				starMario = false;
-				starMus.stop();
+				Sound::instance().stop(5); // stop star music
 			}
 			flagpoleTouchdown = false;
 			flagpoleAnimCounter = 0;
@@ -522,11 +510,9 @@ void Player::update(int deltaTime)
 		deadAnimStart = true;
 		deadAnimCounter = 3000;
 		changeAnimation(DEATH);
-		// Play death sound
-		starMus.stop();
-		deathMus.play();
-		deathMus.setPlayingOffset(sf::Time::Zero);
 
+		Sound::instance().stop(5); // Stop Star Music
+		Sound::instance().play(1); // Start death musics
 	}
 
 	// Check for collisions left-right
@@ -602,11 +588,9 @@ void Player::die(){
 	deadAnimStart = true;
 	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
-	// Play death sound
-	starMus.stop();
 
-	deathMus.play();
-	deathMus.setPlayingOffset(sf::Time::Zero);
+	Sound::instance().stop(5); // Stop Star Music
+	Sound::instance().play(1); // Start death musics
 
 }
 
@@ -635,12 +619,11 @@ void Player::star(){
 
 	starMario = true;
 	starTime = 12800;
-	starMus.play();
-	starMus.setPlayingOffset(sf::Time::Zero);
+	Sound::instance().play(5); // Play star
 }
 
 void Player::flagpole(glm::vec2 posPole){
-	starMus.stop();
+	Sound::instance().stop(5); // Stop star
 
 	setPosition(posPole);
 	changeAnimation(FLAGPOLE);

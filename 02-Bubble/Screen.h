@@ -5,7 +5,6 @@
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Texture.h"
-#include <SFML/Audio.hpp>
 
 // Screen displays one screeen with text and bg.
 

@@ -2,12 +2,11 @@
 #define _SOUND_INCLUDE
 
 #include <SFML/Audio.hpp>
-#include <vector>
 
 class Sound
 {
 private:
-	Sound(){};
+	Sound(){}
 
 public:
 	static Sound& instance() {
@@ -19,11 +18,13 @@ public:
 	void init();
 
 	void play(int songIdx);
+	void stop(int songIdx);
+	int  getStatus(int songIdx); // 0 = Stopped, 1 = Paused, 2 = Playing
 
 	void stopAll();
 
 private:
-	vector<sf::Music> musicVect;
+	sf::Music musicVect[11];
 };
 
 #endif //SOUND_INCLUDE

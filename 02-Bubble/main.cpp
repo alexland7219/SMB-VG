@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include "Sound.h"
 
 //Remove console (only works in Visual Studio)
 #pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
@@ -103,6 +104,9 @@ int main(int argc, char **argv)
 	
 	// Game instance initialization
 	Game::instance().init();
+	// Sound instance initialization
+	Sound::instance().init();
+
 	prevTime = glutGet(GLUT_ELAPSED_TIME);
 	// GLUT gains control of the application
 	glutMainLoop();
