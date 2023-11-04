@@ -49,10 +49,10 @@ private:
 
 	TileMap* map;
 
-	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario;
+	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario, powerDownAnim;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter, starTime;
+	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter, starTime, midTimer;
 	// Player plays Jump, Death and Star music
 };
 

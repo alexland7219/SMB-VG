@@ -3,8 +3,8 @@
 #include "Sound.h"
 
 enum Songs {
-	JUMP, DEATH, COIN, BREAK, MUSHROOM, STAR, WIN, MAINTHEME, ZELDA, GOOMBA, KOOPA
-}; //  0     1     2       3       4      5    6      7          8      9     10
+	JUMP, DEATH, COIN, BREAK, MUSHROOM, STAR, WIN, MAINTHEME, ZELDA, GOOMBA, KOOPA, DAMAGE 
+}; //  0     1     2       3       4      5    6      7          8      9     10      11
 
 void Sound::init()
 {
@@ -40,27 +40,30 @@ void Sound::init()
 	musicVect[GOOMBA].openFromFile("audio/goomba.ogg");
 	
 	musicVect[KOOPA].openFromFile("audio/koopa.ogg");
+
+	musicVect[DAMAGE].openFromFile("audio/damage.ogg");
+	musicVect[DAMAGE].setVolume(300);
 }
 
 void Sound::play(int songIdx) {
-	if (songIdx < 0 || songIdx > 10) return;
+	if (songIdx < 0 || songIdx > 11) return;
 
 	musicVect[songIdx].setPlayingOffset(sf::Time::Zero);
 	musicVect[songIdx].play();
 }
 
 void Sound::stop(int songIdx){
-	if (songIdx < 0 || songIdx > 10) return;
+	if (songIdx < 0 || songIdx > 11) return;
 
 	musicVect[songIdx].stop();
 }
 
 int Sound::getStatus(int songIdx){
-	if (songIdx < 0 || songIdx > 10) return -1;
+	if (songIdx < 0 || songIdx > 11) return -1;
 
 	return musicVect[songIdx].getStatus();
 }
 
 void Sound::stopAll() {
-	for (int i = 0; i < 11; ++i) musicVect[i].stop();
+	for (int i = 0; i < 12; ++i) musicVect[i].stop();
 }
