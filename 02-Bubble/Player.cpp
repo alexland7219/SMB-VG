@@ -3,9 +3,8 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Player.h"
+#include "Sound.h"
 #include "Game.h"
-#include <SFML/Audio.hpp>
-#include <SFML/System.hpp>
 
 #define JUMP_ANGLE_STEP 4
 #define FALL_STEP 4
@@ -24,24 +23,17 @@
 
 enum PlayerAnims
 {
-	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT, DEATH, FLAGPOLE
+	STAND_LEFT, STAND_RIGHT, MOVE_LEFT, MOVE_RIGHT, SKID_RIGHT, SKID_LEFT, JUMP_RIGHT, JUMP_LEFT, DEATH, FLAGPOLE,
+	MID_LEFT, MID_RIGHT
 };
 
 
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
-{
-	jumpMus.openFromFile("audio/jump.ogg");
-	jumpMus.setVolume(20);
-
-	deathMus.openFromFile("audio/death.ogg");
-	deathMus.setVolume(100);
-
-	starMus.openFromFile("audio/star_theme.ogg");
-	starMus.setVolume(100);
-	
+{	
 	bJumping = false;
 	bigMario = false;
 	starMario = false;
+	powerDownAnim = false;
 	bFalling = false;
 	gameOver = false;
 	allowChangeTimer = 0;
@@ -49,10 +41,13 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	vel = glm::vec2(0.f, 0.f);
 	jumpHeight = 69;
 	starTime = 0;
+	midTimer = -1;
 
 	// Small Mario
 
-	spritesheet.loadFromFile("images/mario128.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheet.loadFromFile("images/mario128-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheetBig.loadFromFile("images/big-mario-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
+
 	sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(10);
 
@@ -84,7 +79,6 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setAnimationSpeed(JUMP_LEFT, 8);
 	sprite->addKeyframe(JUMP_LEFT, glm::vec2(0.5f, 0.125f));
 
-
 	sprite->setAnimationSpeed(DEATH, 1);
 	sprite->addKeyframe(DEATH, glm::vec2(0.25f, 0.125f));
 
@@ -97,9 +91,8 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 
 	// Big Mario
-	spritesheetBig.loadFromFile("images/big-mario.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	bigSprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheetBig, &shaderProgram);
-	bigSprite->setNumberAnimations(8);
+	bigSprite->setNumberAnimations(12);
 
 	bigSprite->setAnimationSpeed(STAND_LEFT, 8);
 	bigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.f));
@@ -129,13 +122,19 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	bigSprite->setAnimationSpeed(JUMP_LEFT, 8);
 	bigSprite->addKeyframe(JUMP_LEFT, glm::vec2(0.25f, 0.125f));
 
+	bigSprite->setAnimationSpeed(MID_RIGHT, 1);
+	bigSprite->addKeyframe(MID_RIGHT, glm::vec2(0.5f, 0.125f));
+
+	bigSprite->setAnimationSpeed(MID_LEFT, 1);
+	bigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.125f));
+
 	bigSprite->changeAnimation(0, false);
 	tileMapDispl = tileMapPos;
 	bigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
 	// Star Mario
 
-	spritesheet.loadFromFile("images/mario128-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	//spritesheet.loadFromFile("images/mario128-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	starSprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.125, 0.125), &spritesheet, &shaderProgram);
 	starSprite->setNumberAnimations(9);
 
@@ -217,7 +216,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	spritesheetBig.loadFromFile("images/big-mario-s.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	starbigSprite = Sprite::createSprite(glm::ivec2(16, 32), glm::vec2(0.125, 0.125), &spritesheetBig, &shaderProgram);
-	starbigSprite->setNumberAnimations(9);
+	starbigSprite->setNumberAnimations(12);
 
 	starbigSprite->setAnimationSpeed(STAND_LEFT, 8);
 	starbigSprite->addKeyframe(STAND_LEFT, glm::vec2(1.0 - 0.125, 0.f));
@@ -286,6 +285,19 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	starbigSprite->setAnimationSpeed(FLAGPOLE, 1);
 	starbigSprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.125f));
 
+	starbigSprite->setAnimationSpeed(MID_RIGHT, 4);
+	starbigSprite->addKeyframe(MID_RIGHT, glm::vec2(0.5f, 0.125f));
+	starbigSprite->addKeyframe(MID_RIGHT, glm::vec2(0.5f, 0.375f));
+	starbigSprite->addKeyframe(MID_RIGHT, glm::vec2(0.5f, 0.625f));
+	starbigSprite->addKeyframe(MID_RIGHT, glm::vec2(0.5f, 0.875f));
+
+	starbigSprite->setAnimationSpeed(MID_LEFT, 4);
+	starbigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.125f));
+	starbigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.375f));
+	starbigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.625f));
+	starbigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.875f));
+
+
 	starbigSprite->changeAnimation(0, false);
 	tileMapDispl = tileMapPos;
 	starbigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -297,7 +309,7 @@ void Player::update(int deltaTime)
 	if (starMario) {
 		starTime -= deltaTime;
 		if (starTime <= 0) {
-			starMus.stop();
+			Sound::instance().stop(5); // Stop Star Music
 			starMario = !starMario;
 		}
 	}
@@ -313,6 +325,19 @@ void Player::update(int deltaTime)
 		if (posPlayer.y >= 256 && deadAnimCounter < 0) gameOver = true;
 
 		return;
+	}
+
+	if (midTimer >= 0){
+		midTimer -= deltaTime;
+
+		if (midTimer < 0)
+			changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
+
+		if (midTimer < 0 && powerDownAnim){
+			powerDownAnim = false;
+			bigMario = false;
+			posPlayer.y += 16;
+		}
 	}
 
 	else if (flagpoleAnimStart){
@@ -348,23 +373,30 @@ void Player::update(int deltaTime)
 
 	// change to big mario
 	if (allowChangeTimer <= 0 && (Game::instance().getKey('m') || Game::instance().getKey('M'))){
-		bigMario = !bigMario;
 
-		if (bigMario) posPlayer.y -= 16;
+		if (!bigMario){ // Power up
+			bigMario = true;
+			posPlayer.y -= 16;
+		} 
+		else {          // Poweer down
+			powerDownAnim = true;
+		}
 
+		changeAnimation(vel.x >= 0 ? MID_RIGHT : MID_LEFT);
+		midTimer = 150;
 		// Wait for .5 second before pressing 'M'
-		allowChangeTimer = 500; 
+		allowChangeTimer = 200; 
 	}
 
+	// Change to star mario
 	if (allowChangeTimer <= 0 && (Game::instance().getKey('s') || Game::instance().getKey('S'))) {
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
-			starMus.setPlayingOffset(sf::Time::Zero);
-			starMus.play();
+			Sound::instance().play(5); // Play star music
 		}
 		else {
-			starMus.stop();
+			Sound::instance().stop(5); // Stop only star music
 		}
 		//if (starMario && !bigMario) posPlayer.y -= 16;
 
@@ -416,11 +448,11 @@ void Player::update(int deltaTime)
 
 		if (vel.x < MIN_WALK_SPEED){
 			vel.x = 0;
-			if (!bJumping && !bFalling) changeAnimation(STAND_RIGHT);
+			if (!bJumping && !bFalling && midTimer < 0) changeAnimation(STAND_RIGHT);
 		}
 
 		// Check for skidding
-		if (Game::instance().getSpecialKey(GLUT_KEY_LEFT) && !bJumping && !bFalling){
+		if (Game::instance().getSpecialKey(GLUT_KEY_LEFT) && !bJumping && !bFalling && midTimer < 0){
 			if (sprite->animation() != SKID_RIGHT) changeAnimation(SKID_RIGHT);
 		}
 	}
@@ -431,10 +463,10 @@ void Player::update(int deltaTime)
 
 		if (vel.x > -MIN_WALK_SPEED){
 			vel.x = 0;
-			if (!bJumping && !bFalling) changeAnimation(STAND_LEFT);
+			if (!bJumping && !bFalling && midTimer < 0) changeAnimation(STAND_LEFT);
 		}
 
-		if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT) && !bJumping && !bFalling){
+		if (Game::instance().getSpecialKey(GLUT_KEY_RIGHT) && !bJumping && !bFalling && midTimer < 0){
 			if (sprite->animation() != SKID_LEFT) changeAnimation(SKID_LEFT);
 		}
 	}
@@ -442,11 +474,11 @@ void Player::update(int deltaTime)
 
 	if (vel.x > 0 && !bJumping && !bFalling)
 	{
-		if (sprite->animation() != MOVE_RIGHT && sprite->animation() != SKID_RIGHT) changeAnimation(MOVE_RIGHT);
+		if (sprite->animation() != MOVE_RIGHT && sprite->animation() != SKID_RIGHT && midTimer < 0) changeAnimation(MOVE_RIGHT);
 
 	} else if (vel.x < 0 && !bJumping && !bFalling)
 	{
-		if (sprite->animation() != MOVE_LEFT && sprite->animation() != SKID_LEFT) changeAnimation(MOVE_LEFT);
+		if (sprite->animation() != MOVE_LEFT && sprite->animation() != SKID_LEFT && midTimer < 0) changeAnimation(MOVE_LEFT);
 	}
 
 
@@ -484,15 +516,14 @@ void Player::update(int deltaTime)
 		{
 			if (bFalling){
 				bFalling = false;
-				changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
+				if (midTimer < 0) changeAnimation(vel.x >= 0 ? STAND_RIGHT : STAND_LEFT);
 			}
 
 			if (Game::instance().getKey(SPACE_KEY) || Game::instance().getSpecialKey(GLUT_KEY_UP))
 			{
 				if (allowChangeTimer <= 0) {
 					// Jump
-					jumpMus.setPlayingOffset(sf::Time::Zero);
-					jumpMus.play();
+					Sound::instance().play(0); // Play jump music
 
 					jump(69);
 				}
@@ -501,7 +532,7 @@ void Player::update(int deltaTime)
 			flagpoleAnimStart = true;
 			if (starMario) {
 				starMario = false;
-				starMus.stop();
+				Sound::instance().stop(5); // stop star music
 			}
 			flagpoleTouchdown = false;
 			flagpoleAnimCounter = 0;
@@ -522,9 +553,9 @@ void Player::update(int deltaTime)
 		deadAnimStart = true;
 		deadAnimCounter = 3000;
 		changeAnimation(DEATH);
-		// Play death sound
-		deathMus.setPlayingOffset(sf::Time::Zero);
-		deathMus.play();
+
+		Sound::instance().stop(5); // Stop Star Music
+		Sound::instance().play(1); // Start death musics
 	}
 
 	// Check for collisions left-right
@@ -553,11 +584,13 @@ void Player::update(int deltaTime)
 }
 
 void Player::changeAnimation(int animId){
-	sprite->changeAnimation(animId, starMario);
-	bigSprite->changeAnimation(animId, starMario);
+	if (animId != MID_LEFT && animId != MID_RIGHT) sprite->changeAnimation(animId, starMario);
+
+	if (animId != DEATH && animId != FLAGPOLE) bigSprite->changeAnimation(animId, starMario);
+
 	if (animId != DEATH) {
 		starbigSprite->changeAnimation(animId, starMario);
-		starSprite->changeAnimation(animId, starMario);
+		if (animId != MID_LEFT && animId != MID_RIGHT) starSprite->changeAnimation(animId, starMario);
 	}
 }
 
@@ -589,9 +622,14 @@ void Player::die(){
 	if (deadAnimStart) return; // Cannot die twice
 	if (invincibleCounter > 0) return;
 	if (starMario) return;
-	if (bigMario) { // Remove mushroom
-		bigMario = false;
-		posPlayer.y += 16;
+
+	if (bigMario) { // Power DOWN
+		Sound::instance().play(11); // Damage sound
+
+		powerDownAnim = true;
+		changeAnimation(vel.x >= 0 ? MID_RIGHT : MID_LEFT);
+		midTimer = 150;
+		//posPlayer.y += 16;
 		invincibleCounter = 1000;
 		return;
 	}
@@ -600,9 +638,9 @@ void Player::die(){
 	deadAnimStart = true;
 	deadAnimCounter = 3000;
 	changeAnimation(DEATH);
-	// Play death sound
-	deathMus.play();
-	deathMus.setPlayingOffset(sf::Time::Zero);
+
+	Sound::instance().stop(5); // Stop Star Music
+	Sound::instance().play(1); // Start death musics
 
 }
 
@@ -624,6 +662,8 @@ void Player::mushroom(){
 	posPlayer.y -= 16;
 	allowChangeTimer = 150; 
 
+	changeAnimation(vel.x >= 0 ? MID_RIGHT : MID_LEFT);
+	midTimer = 150;
 }
 
 void Player::star(){
@@ -631,18 +671,18 @@ void Player::star(){
 
 	starMario = true;
 	starTime = 12800;
-	starMus.setPlayingOffset(sf::Time::Zero);
-	starMus.play();
-
+	Sound::instance().play(5); // Play star
 }
 
 void Player::flagpole(glm::vec2 posPole){
+	Sound::instance().stop(5); // Stop star
+
 	setPosition(posPole);
 	changeAnimation(FLAGPOLE);
 }
 
 bool Player::isDead(){ return gameOver; }
-bool Player::won(){ return flagpoleAnimStart && (flagpoleAnimCounter > 5000); }
+bool Player::won(){ return flagpoleAnimStart && (flagpoleAnimCounter > 7000); }
 bool Player::hasWinningAnimStarted(){ return flagpoleAnimStart; }
 bool Player::hasDeathAnimStarted(){ return deadAnimStart; }
 glm::vec2 Player::getPosition(){ return posPlayer; }

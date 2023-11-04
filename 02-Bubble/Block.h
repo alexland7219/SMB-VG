@@ -2,8 +2,6 @@
 #define _BLOCK_INCLUDE
 
 #include "Sprite.h"
-#include <SFML/Audio.hpp>
-#include <SFML/System.hpp>
 
 class Block 
 {
@@ -28,7 +26,7 @@ class Block
     Sprite* sprite;
     int animTimer, breakTimer;
     bool animBump, animBreak;
-	sf::Music breakblock, coinMus;
+	// Plays "Break" & "Coin" music
 
     bool blockKO;
 

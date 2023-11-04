@@ -9,7 +9,6 @@
 #include "Player.h"
 #include "Texture.h"
 #include "Item.h"
-#include <SFML/Audio.hpp>
 
 // Scene contains all the entities of our game.
 // It is responsible for updating and render them.
@@ -60,7 +59,8 @@ private:
 
 	glm::mat4 projection;
 
-	sf::Music defaultMus, goombaMus, koopaMus, mushroomMus, winMus, zeldaMus;
+	//sf::Music defaultMus, goombaMus, koopaMus, mushroomMus, winMus, zeldaMus;
+	// Plays Main theme (7), Goomba (9), Koopa (10), Mushroom (4), Win (6) and Zelda (8) songs
 	bool playerDeathStarted, playerFlagpoleStarted, defPaused;
 
 	int points, level, pointStreak, resetStreakCounter;

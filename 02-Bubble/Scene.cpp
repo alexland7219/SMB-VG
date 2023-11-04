@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Scene.h"
 #include "Game.h"
-#include <SFML/Audio.hpp>
+#include "Sound.h"
 #include <string> 
 
 #define SCREEN_X 0
@@ -11,7 +11,6 @@
 
 #define INIT_PLAYER_X_TILES 0
 #define INIT_PLAYER_Y_TILES 4
-
 
 
 Scene::Scene()
@@ -76,19 +75,7 @@ void Scene::init(int lvl)
 	camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
 
-	defaultMus.openFromFile("audio/track1.ogg");
-	defaultMus.setLoop(true);
-	defaultMus.setVolume(30);
-	defaultMus.play();
-
-	zeldaMus.openFromFile("audio/zelda.ogg");
-	zeldaMus.setLoop(true);
-	zeldaMus.setVolume(60);
-
-	goombaMus.openFromFile("audio/goomba.ogg");
-	koopaMus.openFromFile("audio/koopa.ogg");
-	mushroomMus.openFromFile("audio/Mushroom.ogg");
-	mushroomMus.setVolume(15);
+	Sound::instance().play(7); // Play Main Theme
 
 	playerDeathStarted = false;
 	playerFlagpoleStarted = false;
@@ -159,12 +146,11 @@ int getFloatByPoints(int pts){
 void Scene::update(int deltaTime){
 	// Star
 	if (player->getStar() && !defPaused) {
-		defaultMus.pause();
+		Sound::instance().stop(7); // Stop main theme
 		defPaused = true;
 	}
-	else if (!player->getStar() && defPaused) {
-		//defaultMus.setPlayingOffset(sf::Time::Zero);
-		defaultMus.play();
+	else if (!player->getStar() && defPaused && !playerFlagpoleStarted) {
+		Sound::instance().play(7); // Start main theme
 		defPaused = false;
 	}
 
@@ -234,8 +220,9 @@ void Scene::update(int deltaTime){
 		gameOver = true;
 		return;
 	} 
-	else if (player->hasDeathAnimStarted()) defaultMus.stop();
-	
+	else if (player->hasDeathAnimStarted())
+		Sound::instance().stop(7); // Stop main theme
+
 	glm::ivec2 playerPosAnt = player->getPosition();
 
 	// Update player
@@ -247,10 +234,13 @@ void Scene::update(int deltaTime){
 	if (player->hasWinningAnimStarted() && !playerFlagpoleStarted){
 		playerFlagpoleStarted = true;
 
+		Sound::instance().stop(7); // Stop main theme
+		Sound::instance().stop(8); // Stop zelda theme
+		Sound::instance().play(6); // Play win theme
+
 		int inc = getPtsFromFlagpole(playerPos.y);
 		points += inc;
 		floatsToRender.push_back(glm::vec4(getFloatByPoints(inc), 400, playerPos.x - 5, playerPos.y - 16));
-		//std::cout << int(perc) << std::end;
 	}
 
 	// Update enemies
@@ -300,14 +290,14 @@ void Scene::update(int deltaTime){
 				case 0: // GOOMBA
 				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
 				points += getPtsByStreak(pointStreak);
-				goombaMus.play();
-				goombaMus.setPlayingOffset(sf::Time::Zero);
+
+				Sound::instance().play(9);
 				break;
 				case 1: // KOOPA TROOPA
 				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
 				points += getPtsByStreak(pointStreak);
-				koopaMus.play();
-				koopaMus.setPlayingOffset(sf::Time::Zero);
+
+				Sound::instance().play(10);
 				break;
 
 			}
@@ -320,7 +310,12 @@ void Scene::update(int deltaTime){
 			pointStreak = 0;
 			player->die();
 			playerDeathStarted = player->hasDeathAnimStarted();
-			if (playerDeathStarted) defaultMus.stop();
+
+			if (playerDeathStarted){
+				// Stop overworld songs
+				Sound::instance().stop(7);
+				Sound::instance().stop(8);
+			} 
 
 		}
 	}
@@ -339,8 +334,8 @@ void Scene::update(int deltaTime){
 				points += 1000;
 				floatsToRender.push_back(glm::vec4(ONE_TH, 400, playerPos.x, playerPos.y - 16));
 				player->mushroom();
-				mushroomMus.play();
-				mushroomMus.setPlayingOffset(sf::Time::Zero);
+
+				Sound::instance().play(4);
 				items[i]->die();
 
 			} else { // STAR
@@ -370,9 +365,9 @@ void Scene::update(int deltaTime){
 	}
 
 	// Secret :)
-	if (playerPos.x > 800 && defaultMus.getStatus() == 2){
-		defaultMus.stop();
-		zeldaMus.play();
+	if (playerPos.x > 800 && Sound::instance().getStatus(7) == 2 && !playerFlagpoleStarted){
+		Sound::instance().stop(7);
+		Sound::instance().play(8);
 	}
 }
 

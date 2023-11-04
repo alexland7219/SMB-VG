@@ -3,6 +3,7 @@
 #include <GL/glut.h>
 #include <iostream>
 #include <cmath>
+#include "Sound.h"
 
 enum BlockAnims
 {
@@ -26,11 +27,6 @@ enum BlockTypes
 
 void Block::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int type)
 {
-	breakblock.openFromFile("audio/blockbreak.ogg");
-	coinMus.openFromFile("audio/coin.ogg");
-    coinMus.setVolume(20);
-    breakblock.setVolume(200);
-
     blockKO = false;
     blockType = type;
     vel = glm::vec2(0.f, 0.f);
@@ -120,8 +116,8 @@ void Block::breakBlock()
     sprite->changeAnimation(BREAK, false);
     animBreak = true;
     breakTimer = 200;
-    breakblock.play();
-    breakblock.setPlayingOffset(sf::Time::Zero);
+
+    Sound::instance().play(3); // Play break sound
 }
 
 bool Block::isBroken(){ return blockKO; }
@@ -137,7 +133,6 @@ bool Block::bumpBlock(){
 
 void Block::collectCoin(bool isCoinBlock){
     blockKO = isCoinBlock;
-    coinMus.play();
-    coinMus.setPlayingOffset(sf::Time::Zero);
+    Sound::instance().play(2); // Play coin sound
 
 }

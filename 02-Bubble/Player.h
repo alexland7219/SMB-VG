@@ -4,7 +4,6 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
-#include <SFML/Audio.hpp>
 
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
@@ -50,11 +49,11 @@ private:
 
 	TileMap* map;
 
-	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario;
+	bool bigMario, gameOver, deadAnimStart, flagpoleAnimStart, flagpoleTouchdown, starMario, powerDownAnim;
 	glm::vec2 vel, posPlayer;
 
-	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter, starTime;
-	sf::Music jumpMus, deathMus, starMus;
+	int allowChangeTimer, deadAnimCounter, invincibleCounter, flagpoleAnimCounter, starTime, midTimer;
+	// Player plays Jump, Death and Star music
 };
 
 
