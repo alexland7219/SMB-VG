@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "Game.h"
+#include "Sound.h"
 #include <iostream>
 
 enum Screens {
@@ -13,6 +14,7 @@ void Game::init()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	screen.init(MAINMENU);
 	nLives = 3;
+	levelRespawn = 1;
 	//scene.init(1);
 	screenState = MAINMENU;
 }
@@ -34,12 +36,9 @@ bool Game::update(int deltaTime)
 				screenState = trans;
 				screen.setType(trans);
 
-				if (screenState == LEVEL1 || screenState == LEVEL2){
-					scene.init(1);
-				}
-
+				if (screenState == LEVEL1 || screenState == LEVEL2)
+					scene.init(levelRespawn);
 			}
-		
 		}
 		break;
 		case LEVEL1:
@@ -53,18 +52,32 @@ bool Game::update(int deltaTime)
 			scene.removePlayer();
 			screen.init(LIVES_LEFT);
 			screenState = LIVES_LEFT;
+
+			if (nLives == 0) Sound::instance().play(12);
 		}
 		else if (scene.hasWon() && screenState == LEVEL1){
-
-
 			screenState = LEVEL2;
+			levelRespawn = 2;
 			scene.init(2);
 		}
 		else if (scene.hasWon() && screenState == LEVEL2){
 			screenState = MAINMENU;
+			levelRespawn = 1;	
 			screen.setType(screenState);
 		}
-		
+		else if (getKey('1')){
+			// Jump to level 1
+			screenState = LEVEL1;
+			levelRespawn = 1;	
+			scene.init(1);
+		} 
+		else if (getKey('2')){
+			// Jump to level 2
+			screenState = LEVEL2;
+			levelRespawn = 2;
+			scene.init(2);
+		}
+
 		break;
 	}
 

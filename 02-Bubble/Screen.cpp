@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 #include "Game.h"
+#include "Sound.h"
 #include <GL/glut.h>
 
 #define ENTER_KEY 13
@@ -92,7 +93,11 @@ void Screen::update(int deltaTime){
 	}
 	else if (Game::instance().getKey(ENTER_KEY) && allowChangeTimer <= 0 && screenType == LIVES_LEFT){
 		allowChangeTimer = 100;
-		nextScreen = LEVEL1;
+
+		if (Game::instance().getLivesLeft() == 0) nextScreen = MAINMENU;
+		else nextScreen = LEVEL1;
+
+		Sound::instance().stop(12); // Stop game over music
 	}
 }
 

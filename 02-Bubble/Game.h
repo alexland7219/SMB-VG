@@ -46,6 +46,7 @@ public:
 
 private:
 	bool bPlay;                       // Continue to play game?
+	int levelRespawn;
 	Scene scene;                      // Scene to render
 	Screen screen;				      // Welcome screen
 
