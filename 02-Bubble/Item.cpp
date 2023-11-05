@@ -24,7 +24,7 @@
 
 enum ItemAnims
 {
-	WALK, DEATH, WALK_RIGHT, WALK_LEFT, IN_SHELL
+	WALK, DEATH, WALK_RIGHT, WALK_LEFT, IN_SHELL, STAR_DEATH
 };
 
 enum ItemTypes
@@ -37,6 +37,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 	bJumping = false;
 	bFalling = false;
 	itemKO = false;
+	starDeathAnim = false;
 	koopaShell = false;
 	typeItem = type;
 	vel = glm::vec2((type == STAR ? 1.0f : 0.5f), 0.f);
@@ -46,7 +47,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 		case GOOMBA:
 			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
 			sprite = Sprite::createSprite(glm::ivec2(16, 16), glm::vec2(0.25, 0.25), &spritesheet, &shaderProgram);
-			sprite->setNumberAnimations(2);
+			sprite->setNumberAnimations(6);
 
 			sprite->setAnimationSpeed(WALK, 4);
 			sprite->addKeyframe(WALK, glm::vec2(0.f, 0.f));
@@ -54,6 +55,9 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 
 			sprite->setAnimationSpeed(DEATH, 1);
 			sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.f));
+
+			sprite->setAnimationSpeed(STAR_DEATH, 1);
+			sprite->addKeyframe(STAR_DEATH, glm::vec2(0.f, 0.75f));
 
 			sprite->changeAnimation(0, false);
 			tileMapDispl = tileMapPos;
@@ -75,6 +79,9 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 
 			sprite->setAnimationSpeed(IN_SHELL, 1);
 			sprite->addKeyframe(IN_SHELL, glm::vec2(0.5f, 0.f));
+
+			sprite->setAnimationSpeed(DEATH, 1);
+			sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.5f));
 
 			sprite->changeAnimation(WALK_RIGHT, false);
 			tileMapDispl = tileMapPos;

@@ -408,7 +408,7 @@ void Player::update(int deltaTime)
 
 	// Increment Velocities
 	if (vel.x >= 0 && Game::instance().getSpecialKey(GLUT_KEY_RIGHT)){
-		if (Game::instance().getSpecialKey(SHIFT_KEY)){
+		if (Game::instance().getSpecialKey(SHIFT_KEY) || starMario){
 			// Running
 			vel.x += RUN_ACELERATION;
 
@@ -425,7 +425,7 @@ void Player::update(int deltaTime)
 	}
 	else if (vel.x <= 0 && Game::instance().getSpecialKey(GLUT_KEY_LEFT)){
 
-		if (!Game::instance().getSpecialKey(SHIFT_KEY)){
+		if (!Game::instance().getSpecialKey(SHIFT_KEY) && !starMario){
 			// Walking acceleration
 			vel.x -= WALK_ACELERATION;
 			

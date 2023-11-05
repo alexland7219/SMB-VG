@@ -42,7 +42,7 @@ private:
 	Sprite* sprite;
 
 	bool koopaShell;
-	bool deadAnimStart, itemKO, goingUp;
+	bool deadAnimStart, itemKO, goingUp, starDeathAnim;
 	int deadAnimCounter;
 
 	int typeItem;

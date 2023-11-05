@@ -54,14 +54,24 @@ void Scene::init(int lvl)
 	defPaused = false;
 
 	// Enemies initialization
-	enemies.clear();
-	enemies.resize(4);
-	for (int e = 0; e < 4; ++e) {
-		enemies[e] = new Item();
-		if (e != 3) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
-		else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
-		enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + e*40, 10 * map->getTileSize()));
-		enemies[e]->setTileMap(map);
+
+	if (lvl == 1){
+		// Ubicacions dels enemics en el nivell 1
+		enemies.clear();
+		enemies.resize(3);
+		for (int e = 0; e < 3; ++e) {
+			enemies[e] = new Item();
+			if (e < 2) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1); // 1 = Koopa, 0 = Goomba
+			else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+			enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + (e-1)*40, 10 * map->getTileSize()));
+			enemies[e]->setTileMap(map);
+		}
+	}
+	else if (lvl == 2)
+	{
+		// Ubicacions dels enemics en el nivell 2
+		enemies.clear();
+		enemies.resize(2);
 	}
 
 	// Items initialization
@@ -317,6 +327,32 @@ void Scene::update(int deltaTime){
 				Sound::instance().stop(8);
 			} 
 
+		} else if (enemies[e]->collisionKill(playerPos, playerSize) && player->getStar()){
+			// Player has a star!
+
+			int enemyType = enemies[e]->getType();
+			int inc = getPtsByStreak(pointStreak);
+			int spriteThatWillRender = getFloatByPoints(inc);
+
+			switch (enemyType){
+				case 0: // GOOMBA
+				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
+				points += getPtsByStreak(pointStreak);
+
+				Sound::instance().play(9);
+				break;
+				case 1: // KOOPA TROOPA
+				floatsToRender.push_back(glm::vec4(spriteThatWillRender, 400, playerPos.x, playerPos.y));
+				points += getPtsByStreak(pointStreak);
+
+				Sound::instance().play(9);
+				break;
+
+			}
+
+			++pointStreak;
+
+			enemies[e]->die();
 		}
 	}
 
@@ -363,6 +399,9 @@ void Scene::update(int deltaTime){
 	if (player->won()){
 		won = true;
 	}
+
+	// DONT OVERFLOW OR ELSE SIGFAULT
+	if (points > 999999) points = 999999;
 
 	// Secret :)
 	if (playerPos.x > 800 && Sound::instance().getStatus(7) == 2 && !playerFlagpoleStarted){
