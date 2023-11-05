@@ -47,6 +47,7 @@ public:
 private:
 	bool loadLevel(const string &levelFile);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
+	bool isInsideScreen(int x, int y);
 
 private:
 

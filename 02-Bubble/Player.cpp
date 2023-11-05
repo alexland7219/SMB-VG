@@ -16,7 +16,7 @@
 #define MAX_RUN_SPEED 2.1
 #define WALK_ACELERATION 0.15
 #define RUN_ACELERATION 0.3
-#define RELEASE_DECELERATION 0.06
+#define RELEASE_DECELERATION 0.08
 
 #define SHIFT_KEY 112
 #define SPACE_KEY 32
@@ -570,6 +570,7 @@ void Player::update(int deltaTime)
 		flagpoleAnimStart = true;
 		flagpoleTouchdown = false;
 		flagpoleAnimCounter = 0;
+		starMario = false;
 		changeAnimation(FLAGPOLE);
 		vel.x = 0;
 		vel.y = 0;
@@ -676,6 +677,7 @@ void Player::star(){
 
 void Player::flagpole(glm::vec2 posPole){
 	Sound::instance().stop(5); // Stop star
+	starMario = false;
 
 	setPosition(posPole);
 	changeAnimation(FLAGPOLE);

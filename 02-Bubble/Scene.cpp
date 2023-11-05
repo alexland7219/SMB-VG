@@ -72,6 +72,14 @@ void Scene::init(int lvl)
 		// Ubicacions dels enemics en el nivell 2
 		enemies.clear();
 		enemies.resize(2);
+		for (int e = 0; e < 2; ++e) {
+			enemies[e] = new Item();
+			if (e == 0) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1); // 1 = Koopa, 0 = Goomba
+			else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+			enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + (e-1)*40, 10 * map->getTileSize()));
+			enemies[e]->setTileMap(map);
+		}
+
 	}
 
 	// Items initialization
@@ -170,6 +178,8 @@ void Scene::update(int deltaTime){
 	if (!playerFlagpoleStarted) remTime -= deltaTime / 1000.f;
 	else if (remTime > 0){
 		remTime -= deltaTime / 10.f;
+		if (remTime < 0) remTime = 0;
+
 		points += (deltaTime);
 	}
 
@@ -289,8 +299,8 @@ void Scene::update(int deltaTime){
 			}
 		}
 
-
-		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted){
+		// Collisions enemy - player
+		if (enemies[e]->collisionStomped(playerPos, playerSize) && !playerDeathStarted && !player->getStar()){
 			int enemyType = enemies[e]->getType();
 
 			int inc = getPtsByStreak(pointStreak);
@@ -327,7 +337,7 @@ void Scene::update(int deltaTime){
 				Sound::instance().stop(8);
 			} 
 
-		} else if (enemies[e]->collisionKill(playerPos, playerSize) && player->getStar()){
+		} else if ((enemies[e]->collisionKill(playerPos, playerSize) || enemies[e]->collisionStomped(playerPos, playerSize)) && player->getStar()){
 			// Player has a star!
 
 			int enemyType = enemies[e]->getType();

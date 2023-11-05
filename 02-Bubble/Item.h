@@ -49,7 +49,7 @@ private:
 
 	TileMap* map;
 
-	glm::vec2 vel, posItem;
+	glm::vec2 vel, posItem, deathPos;
 
 };
 

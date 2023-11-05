@@ -67,7 +67,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 		case KOOPA:
 			spritesheet.loadFromFile("images/koopa.png", TEXTURE_PIXEL_FORMAT_RGBA);
 			sprite = Sprite::createSprite(glm::ivec2(16, 24), glm::vec2(0.25, 0.5), &spritesheet, &shaderProgram);
-			sprite->setNumberAnimations(5);
+			sprite->setNumberAnimations(6);
 
 			sprite->setAnimationSpeed(WALK_RIGHT, 4);
 			sprite->addKeyframe(WALK_RIGHT, glm::vec2(0.f, 0.5f));
@@ -82,6 +82,9 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 
 			sprite->setAnimationSpeed(DEATH, 1);
 			sprite->addKeyframe(DEATH, glm::vec2(0.5f, 0.5f));
+
+			sprite->setAnimationSpeed(STAR_DEATH, 1);
+			sprite->addKeyframe(STAR_DEATH, glm::vec2(0.5f, 0.5f));
 
 			sprite->changeAnimation(WALK_RIGHT, false);
 			tileMapDispl = tileMapPos;
@@ -120,6 +123,17 @@ void Item::update(int deltaTime)
 	if (deadAnimStart){
 		deadAnimCounter -= deltaTime;
 		if (deadAnimCounter < 0) itemKO = true; 
+
+		if (starDeathAnim){
+			// 800 is the initial deadAnimCounter timer
+
+			posItem.x = deathPos.x - 0.05*(800 - deadAnimCounter);
+			posItem.y = deathPos.y - 0.05*(800 - deadAnimCounter) + 0.0002*(800 - deadAnimCounter)*(800 - deadAnimCounter);// + 0.05*(deadAnimCounter - 800)*(deadAnimCounter - 800);
+
+
+			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+		}
+
 		return;
 	}
 
@@ -145,12 +159,14 @@ void Item::update(int deltaTime)
 	else {
 		if (map->collisionMoveRight(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak, NULL, NULL)) {
 			if (vel.x > 0) {
+				if (typeItem == KOOPA) sprite->changeAnimation(WALK_LEFT, false);
 				posItem.x -= vel.x;
 				vel.x = -vel.x;
 			}
 		}
 		else if (map->collisionMoveLeft(glm::vec2(posItem.x, posItem.y + off + off2), glm::ivec2(ITEM_WIDTH, ITEM_HEIGHT - off - off2), koopaBreak)) {
 			if (vel.x < 0) {
+				if (typeItem == KOOPA) sprite->changeAnimation(WALK_RIGHT, false);
 				posItem.x -= vel.x;
 				vel.x = -vel.x;
 			}
@@ -178,7 +194,10 @@ void Item::update(int deltaTime)
 
 	posItem += vel;
 
-	if (posItem.x < 0) posItem.x = 0;
+	if (posItem.x < 0){
+		posItem.x = 0;
+		vel.x = -vel.x;	
+	}
 	if (posItem.y >= 240) itemKO = true; 
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
@@ -241,15 +260,18 @@ bool Item::collisionKill(const glm::ivec2& pos, const glm::ivec2 size){
 }
 
 void Item::die() {
+	// Plays the star death animation
 	if (typeItem == MUSHROOM || typeItem == STAR){
 		itemKO = true;
 		return;
 	}
 
+	deathPos = posItem;
 	deadAnimStart = true;
-	deadAnimCounter = 400;
+	deadAnimCounter = 800;
+	starDeathAnim = true;
 
-	sprite->changeAnimation(DEATH, false);
+	sprite->changeAnimation(STAR_DEATH, false);
 }
 
 void Item::stomp(const glm::ivec2& pos){

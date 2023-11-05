@@ -206,6 +206,8 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 	texCoordLocation = program.bindVertexAttribute("texCoord", 2, 4*sizeof(float), (void *)(2*sizeof(float)));
 }
 
+bool TileMap::isInsideScreen(int x, int y){ return x >= 0 && x < mapSize.x && y >= 0 && y < mapSize.y; }
+
 // Collision tests for axis aligned bounding boxes.
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
@@ -217,6 +219,9 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 	x = pos.x / tileSize;
 	y0 = pos.y / tileSize;
 	y1 = glm::min((pos.y + size.y - 1) / tileSize, 14.0f);
+
+	if (!isInsideScreen(x, y0) || !isInsideScreen(x, y1)) return false;
+
 	for(int y=y0; y<=y1; y++)
 	{
 		if (map[y*mapSize.x + x] == -T_COIN && !blockMatrix[y * mapSize.x + x]->isBroken()){
@@ -253,6 +258,8 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 	x = (pos.x + size.x - 1) / tileSize;
 	y0 = pos.y / tileSize;
 	y1 = glm::min((pos.y + size.y - 1) / tileSize, 14.0f);
+
+	if (!isInsideScreen(x, y0) || !isInsideScreen(x, y1)) return false;
 
 	for(int y=y0; y<=y1; y++)
 	{		
@@ -305,6 +312,9 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 	x0 = (pos.x + 3) / tileSize;
 	x1 = (pos.x + size.x - 3) / tileSize;
 	y = pos.y / tileSize;
+
+	if (!isInsideScreen(x0, y) || !isInsideScreen(x1, y)) return false;
+
 	bool addNewItem;
 
 	for(int x=x0; x<=x1; x++)
@@ -366,6 +376,7 @@ bool TileMap::collisionMoveDown(const glm::vec2 &pos, const glm::ivec2 &size, fl
 	y = (pos.y + size.y - 1) / tileSize;
 
 	if (pos.y + size.y >= 240) return false;
+	if (!isInsideScreen(x0, y) || !isInsideScreen(x1, y)) return false;
 
 	for(int x=x0; x<=x1; x++)
 	{
