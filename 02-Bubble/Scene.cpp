@@ -11,7 +11,7 @@
 
 #define INIT_PLAYER_X_TILES 0
 #define INIT_PLAYER_Y_TILES 13
-
+#define SPAWN_DISTANCE 200
 
 Scene::Scene()
 {
@@ -60,7 +60,18 @@ void Scene::init(int lvl)
 	if (lvl == 1){
 		// Ubicacions dels enemics en el nivell 1
 		enemies.clear();
-		//enemies.resize(3);
+		enemies.resize(2);
+
+		enemies[0] = new Item();
+		enemies[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[0]->setPosition(glm::vec2(7 * map->getTileSize(), 13 * map->getTileSize()));
+		enemies[0]->setTileMap(map);
+
+		enemies[1] = new Item();
+		enemies[1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[1]->setPosition(glm::vec2(13 * map->getTileSize(), 13 * map->getTileSize()));
+		enemies[1]->setTileMap(map);
+
 		/*for (int e = 0; e < 3; ++e) {
 			enemies[e] = new Item();
 			if (e < 2) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1); // 1 = Koopa, 0 = Goomba
@@ -269,6 +280,9 @@ void Scene::update(int deltaTime){
 	for (int e = 0; e < enemies.size(); ++e){
 		if (enemies[e]->isDead()) continue;
 
+		if (!enemies[e]->isSpawned() && enemies[e]->getPosition().x - playerPos.x <= SPAWN_DISTANCE) enemies[e]->setSpawned(true);
+		else if (!enemies[e]->isSpawned()) continue;
+
 		enemies[e]->update(deltaTime);
 		glm::ivec2 enemyPos = enemies[e]->getPosition();
 		glm::ivec2 enemySize = enemies[e]->getSize();
@@ -276,6 +290,7 @@ void Scene::update(int deltaTime){
 		// First check for collision between enemies
 		for (int ee = 0; ee < enemies.size(); ++ee){
 			if (ee == e || enemies[ee]->hasDeathAnimStarted() || enemies[e]->hasDeathAnimStarted()) continue;
+			if (!enemies[ee]->isSpawned()) continue;
 
 			if (enemies[ee]->collisionKill(enemyPos, enemySize)){
 				// Collision

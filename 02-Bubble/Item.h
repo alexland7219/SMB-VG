@@ -28,7 +28,9 @@ public:
 	glm::vec2 getPosition();
 	glm::vec2 getSize();
 	int getType();
+	bool isSpawned();
 
+	void setSpawned(bool sp);
 	void invertXVelocity();
 	void die();
 	void jump();
@@ -41,7 +43,7 @@ private:
 	Texture spritesheet;
 	Sprite* sprite;
 
-	bool koopaShell;
+	bool koopaShell, spawned;
 	bool deadAnimStart, itemKO, goingUp, starDeathAnim;
 	int deadAnimCounter;
 

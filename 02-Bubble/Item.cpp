@@ -42,6 +42,8 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 	typeItem = type;
 	vel = glm::vec2((type == STAR ? 1.0f : 0.5f), 0.f);
 
+	if (typeItem == GOOMBA || typeItem == KOOPA) vel.x = -0.5f;
+
 	// TYPE 0: Goomba
 	switch (type){
 		case GOOMBA:
@@ -59,9 +61,11 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->setAnimationSpeed(STAR_DEATH, 1);
 			sprite->addKeyframe(STAR_DEATH, glm::vec2(0.f, 0.75f));
 
-			sprite->changeAnimation(0, false);
+			sprite->changeAnimation(WALK, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+
+			spawned = false;
 			break;
 
 		case KOOPA:
@@ -86,9 +90,11 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->setAnimationSpeed(STAR_DEATH, 1);
 			sprite->addKeyframe(STAR_DEATH, glm::vec2(0.5f, 0.5f));
 
-			sprite->changeAnimation(WALK_RIGHT, false);
+			sprite->changeAnimation(WALK_LEFT, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+
+			spawned = false;
 			break;
 		case MUSHROOM:
 			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -101,6 +107,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->changeAnimation(WALK, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			spawned = true;
 			break;
 		case STAR:
 			spritesheet.loadFromFile("images/enemies-small.png", TEXTURE_PIXEL_FORMAT_RGBA);
@@ -113,6 +120,7 @@ void Item::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, int 
 			sprite->changeAnimation(WALK, false);
 			tileMapDispl = tileMapPos;
 			sprite->setPosition(glm::vec2(float(tileMapDispl.x + posItem.x), float(tileMapDispl.y + posItem.y)));
+			spawned = true;
 			break;
 
 	}
@@ -309,7 +317,9 @@ void Item::jump() {
 bool Item::isDead(){ return itemKO; }
 bool Item::hasDeathAnimStarted(){ return deadAnimStart || itemKO; }
 bool Item::killsEnemies() { return typeItem == KOOPA && koopaShell && vel.x != 0; }
+bool Item::isSpawned(){ return spawned; }
 
+void Item::setSpawned(bool sp){ spawned = sp; }
 glm::vec2 Item::getPosition(){ return posItem; }
 int Item::getType(){ return typeItem; }
 
