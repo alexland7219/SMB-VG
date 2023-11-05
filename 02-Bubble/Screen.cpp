@@ -22,12 +22,14 @@ Screen::Screen()
 {
     map = NULL;
 	bgmap = NULL;
+	fgmap = NULL;
 }
 
 Screen::~Screen()
 {
     if (map != NULL) delete map;
 	if (bgmap!=NULL) delete bgmap;
+	if (fgmap!=NULL) delete fgmap;
 }
 
 
@@ -35,6 +37,7 @@ void Screen::init(int numScreen){
     initShaders();
 	initGlyphTextures();
 	bgmap = TileMap::createTileMap("levels/level01-bg.txt", glm::vec2(0, 0), texProgram, true);
+	fgmap = TileMap::createTileMap("levels/level01-fg.txt", glm::vec2(0,0), texProgram, true);
 
     nextScreen = -1;
     selection = PLAY_SELECT;
@@ -114,6 +117,7 @@ void Screen::render(){
 
 	glClearColor(.57f, 0.57f, 1.0f, 1.0f);
 	bgmap->render();
+	fgmap->render();
 
 	switch (screenType){
 		case MAINMENU:

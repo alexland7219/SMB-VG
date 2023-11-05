@@ -30,6 +30,7 @@ private:
 private:
 	TileMap* map;
 	TileMap* bgmap;
+	TileMap* fgmap;
 	
 	ShaderProgram texProgram;
     int selection;

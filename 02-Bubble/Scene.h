@@ -41,6 +41,7 @@ private:
 
 	TileMap* map;
 	TileMap* bgmap;
+	TileMap* fgmap;
 	Player* player;
 	vector<Item*> enemies;
 	vector<Item*> items;

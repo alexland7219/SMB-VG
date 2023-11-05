@@ -10,13 +10,14 @@
 #define SCREEN_Y 0
 
 #define INIT_PLAYER_X_TILES 0
-#define INIT_PLAYER_Y_TILES 4
+#define INIT_PLAYER_Y_TILES 13
 
 
 Scene::Scene()
 {
 	map = NULL;
 	bgmap = NULL;
+	fgmap = NULL;
 	player = NULL;
 }
 
@@ -41,6 +42,7 @@ void Scene::init(int lvl)
 	string levelX = "level0" + std::to_string(lvl);
 
 	map = TileMap::createTileMap("levels/" + levelX + ".txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, false);
+	fgmap = TileMap::createTileMap("levels/"+levelX + "-fg.txt", glm::vec2(0,0), texProgram, true);
 	bgmap = TileMap::createTileMap("levels/" + levelX + "-bg.txt", glm::vec2(0, 0), texProgram, true);
 
 	// Level, coins, points, remainig time, gameOver?
@@ -58,14 +60,14 @@ void Scene::init(int lvl)
 	if (lvl == 1){
 		// Ubicacions dels enemics en el nivell 1
 		enemies.clear();
-		enemies.resize(3);
-		for (int e = 0; e < 3; ++e) {
+		//enemies.resize(3);
+		/*for (int e = 0; e < 3; ++e) {
 			enemies[e] = new Item();
 			if (e < 2) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1); // 1 = Koopa, 0 = Goomba
 			else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
 			enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + (e-1)*40, 10 * map->getTileSize()));
 			enemies[e]->setTileMap(map);
-		}
+		}*/
 	}
 	else if (lvl == 2)
 	{
@@ -455,6 +457,17 @@ void Scene::render()
 	for (int i = 0; i < items.size(); ++i){
 		if (!items[i]->isDead()) items[i]->render();
 	}
+
+	texProgram.setUniformMatrix4f("projection", projection);
+	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
+	modelview = glm::mat4(1.0f);
+	texProgram.setUniformMatrix4f("modelview", modelview);
+	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
+	texProgram.setUniformInt("invertX", 0); // False
+
+
+	// Render foreground
+	fgmap->render();
 
 	// Render text
 	string pointString = std::to_string(points + map->getTotalCoins()*100);

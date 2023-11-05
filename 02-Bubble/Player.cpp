@@ -85,7 +85,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite->setAnimationSpeed(FLAGPOLE, 1);
 	sprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.125f));
 
-	sprite->changeAnimation(0, false);
+	sprite->changeAnimation(STAND_RIGHT, false);
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
@@ -128,7 +128,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	bigSprite->setAnimationSpeed(MID_LEFT, 1);
 	bigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.125f));
 
-	bigSprite->changeAnimation(0, false);
+	bigSprite->changeAnimation(STAND_RIGHT, false);
 	tileMapDispl = tileMapPos;
 	bigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
@@ -208,7 +208,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	starSprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.625f));
 	starSprite->addKeyframe(FLAGPOLE, glm::vec2(0.75f, 0.875f));
 
-	starSprite->changeAnimation(0, false);
+	starSprite->changeAnimation(STAND_RIGHT, false);
 	tileMapDispl = tileMapPos;
 	starSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
@@ -298,7 +298,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	starbigSprite->addKeyframe(MID_LEFT, glm::vec2(0.625f, 0.875f));
 
 
-	starbigSprite->changeAnimation(0, false);
+	starbigSprite->changeAnimation(STAND_RIGHT, false);
 	tileMapDispl = tileMapPos;
 	starbigSprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 
