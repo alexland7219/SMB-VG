@@ -525,7 +525,7 @@ void Player::update(int deltaTime)
 					// Jump
 					Sound::instance().play(0); // Play jump music
 
-					jump(69);
+					jump(60);
 				}
 			}
 		} else if (flagpole){
@@ -539,9 +539,12 @@ void Player::update(int deltaTime)
 			changeAnimation(FLAGPOLE);
 			vel.x = 0;
 			vel.y = 0;
-			bigMario = false;
 			posPlayer.x = flagX;
 
+			if (bigMario){
+				bigMario = false;
+				posPlayer.y += 16;
+			}
 		}
 	}
 
@@ -574,8 +577,13 @@ void Player::update(int deltaTime)
 		changeAnimation(FLAGPOLE);
 		vel.x = 0;
 		vel.y = 0;
-		bigMario = false;
 		posPlayer.x = flagX;
+
+		if (bigMario){
+				bigMario = false;
+				posPlayer.y += 16;
+			}
+
 	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -680,6 +688,12 @@ void Player::flagpole(glm::vec2 posPole){
 	starMario = false;
 
 	setPosition(posPole);
+
+	if (bigMario){
+		bigMario = false;
+		posPlayer.y += 16;
+	}
+
 	changeAnimation(FLAGPOLE);
 }
 

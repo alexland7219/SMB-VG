@@ -69,7 +69,7 @@ void Scene::init(int lvl)
 
 		enemies[1] = new Item();
 		enemies[1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
-		enemies[1]->setPosition(glm::vec2(13 * map->getTileSize(), 13 * map->getTileSize()));
+		enemies[1]->setPosition(glm::vec2(10 * map->getTileSize(), 6 * map->getTileSize()));
 		enemies[1]->setTileMap(map);
 
 		/*for (int e = 0; e < 3; ++e) {
