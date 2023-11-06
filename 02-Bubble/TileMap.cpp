@@ -240,7 +240,7 @@ bool TileMap::collisionMoveLeft(const glm::vec2 &pos, const glm::ivec2 &size, bo
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
-				if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
+				if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak && !blockMatrix[y*mapSize.x+x]->isBreaking())
 					blockMatrix[y * mapSize.x + x]->breakBlock();
 
 				return true;
@@ -293,7 +293,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 			return true;
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
-			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
+			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()  && !blockMatrix[y*mapSize.x+x]->isBreaking()){
 				if (map[y * mapSize.x + x] == -T_BREAKABLE && koopaBreak)
 					blockMatrix[y * mapSize.x + x]->breakBlock();
 
@@ -333,7 +333,7 @@ bool TileMap::collisionMoveUp(const glm::vec2 &pos, const glm::ivec2 &size, floa
 		}
 		else if (blockMatrix[y*mapSize.x + x] != NULL){
 			if (map[y*mapSize.x+x] < 0 && !blockMatrix[y * mapSize.x + x]->isBroken()){
-				if (map[y * mapSize.x + x] == -T_BREAKABLE && bigMario) {
+				if (map[y * mapSize.x + x] == -T_BREAKABLE && bigMario && !blockMatrix[y*mapSize.x+x]->isBreaking()) {
 					blockMatrix[y * mapSize.x + x]->breakBlock();
 				} 
 				else if (map[y * mapSize.x + x] == -T_BREAKABLE) blockMatrix[y * mapSize.x + x]->bumpBlock();

@@ -136,3 +136,5 @@ void Block::collectCoin(bool isCoinBlock){
     Sound::instance().play(2); // Play coin sound
 
 }
+
+bool Block::isBreaking(){ return animBreak; }

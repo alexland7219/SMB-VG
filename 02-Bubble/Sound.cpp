@@ -34,7 +34,7 @@ void Sound::init()
 	musicVect[MAINTHEME].setLoop(true);
 
 	musicVect[ZELDA].openFromFile("audio/zelda.ogg");
-	musicVect[ZELDA].setVolume(40);
+	musicVect[ZELDA].setVolume(35);
 	musicVect[ZELDA].setLoop(true);
 
 	musicVect[GOOMBA].openFromFile("audio/goomba.ogg");

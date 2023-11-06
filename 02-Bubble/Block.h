@@ -12,6 +12,7 @@ class Block
     void render();
     void breakBlock();
     bool isBroken();
+    bool isBreaking();
     void collectCoin(bool isCoinBlock);
 
     // Returns true if we need to animate a floating sprite
