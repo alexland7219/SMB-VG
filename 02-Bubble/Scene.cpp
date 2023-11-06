@@ -389,7 +389,7 @@ void Scene::update(int deltaTime){
 
 			enemies[e]->stomp(playerPos);
 			player->jump(30);
-		} else if (enemies[e]->collisionKill(playerPos, playerSize) && !player->getStar()){
+		} else if (enemies[e]->collisionKill(playerPos, playerSize) && !player->getStar() && !player->hasWinningAnimStarted()){
 			pointStreak = 0;
 			player->die();
 			playerDeathStarted = player->hasDeathAnimStarted();
@@ -477,7 +477,7 @@ void Scene::update(int deltaTime){
 	if (points > 999999) points = 999999;
 
 	// Secret :)
-	if (playerPos.x > 800 && Sound::instance().getStatus(7) == 2 && !playerFlagpoleStarted){
+	if (playerPos.x > 750 && Sound::instance().getStatus(7) == 2 && !playerFlagpoleStarted && level == 1){
 		Sound::instance().stop(7);
 		Sound::instance().play(8);
 	}

@@ -310,6 +310,7 @@ void Player::update(int deltaTime)
 		starTime -= deltaTime;
 		if (starTime <= 0) {
 			Sound::instance().stop(5); // Stop Star Music
+			Sound::instance().play(7);
 			starMario = !starMario;
 		}
 	}
@@ -389,7 +390,7 @@ void Player::update(int deltaTime)
 	}
 
 	// Change to star mario
-	if (allowChangeTimer <= 0 && Game::instance().getKey('s')) {
+	if (allowChangeTimer <= 0 && Game::instance().getKey('g')) {
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
@@ -403,7 +404,7 @@ void Player::update(int deltaTime)
 		}
 		//if (starMario && !bigMario) posPlayer.y -= 16;
 
-		// Wait for .5 second before pressing 'S'
+		// Wait for .5 second before pressing 'G'
 		allowChangeTimer = 500;
 	}
 
@@ -561,6 +562,8 @@ void Player::update(int deltaTime)
 		changeAnimation(DEATH);
 
 		Sound::instance().stop(5); // Stop Star Music
+		Sound::instance().stop(7); // Stop background music
+		Sound::instance().stop(8);
 		Sound::instance().play(1); // Start death musics
 	}
 
@@ -683,6 +686,9 @@ void Player::star(){
 
 	starMario = true;
 	starTime = 12800;
+
+	Sound::instance().stop(7);
+	Sound::instance().stop(8);
 	Sound::instance().play(5); // Play star
 }
 

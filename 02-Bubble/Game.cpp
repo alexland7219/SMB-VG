@@ -36,8 +36,10 @@ bool Game::update(int deltaTime)
 				screenState = trans;
 				screen.setType(trans);
 
-				if (screenState == LEVEL1 || screenState == LEVEL2)
+				if (screenState == LEVEL1 || screenState == LEVEL2){
 					scene.init(levelRespawn);
+					if (nLives == 0) nLives = 3;
+				}
 			}
 		}
 		break;
