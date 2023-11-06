@@ -60,7 +60,7 @@ void Scene::init(int lvl)
 	if (lvl == 1){
 		// Ubicacions dels enemics en el nivell 1
 		enemies.clear();
-		enemies.resize(2);
+		enemies.resize(11);
 
 		enemies[0] = new Item();
 		enemies[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
@@ -71,6 +71,52 @@ void Scene::init(int lvl)
 		enemies[1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
 		enemies[1]->setPosition(glm::vec2(10 * map->getTileSize(), 6 * map->getTileSize()));
 		enemies[1]->setTileMap(map);
+
+		enemies[2] = new Item();
+		enemies[2]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[2]->setPosition(glm::vec2(40 * map->getTileSize(), 12 * map->getTileSize()));
+		enemies[2]->setTileMap(map);
+
+		enemies[3] = new Item();
+		enemies[3]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[3]->setPosition(glm::vec2(45 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[3]->setTileMap(map);
+
+		enemies[4] = new Item();
+		enemies[4]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[4]->setPosition(glm::vec2(72 * map->getTileSize(), 6 * map->getTileSize()));
+		enemies[4]->setTileMap(map);
+
+		enemies[5] = new Item();
+		enemies[5]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[5]->setPosition(glm::vec2(74 * map->getTileSize(), 8 * map->getTileSize()));
+		enemies[5]->setTileMap(map);
+
+		enemies[6] = new Item();
+		enemies[6]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[6]->setPosition(glm::vec2(75 * map->getTileSize(), 12 * map->getTileSize()));
+		enemies[6]->setTileMap(map);
+
+		enemies[7] = new Item();
+		enemies[7]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[7]->setPosition(glm::vec2(82 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[7]->setTileMap(map);
+
+		enemies[8] = new Item();
+		enemies[8]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[8]->setPosition(glm::vec2(88 * map->getTileSize(), 6 * map->getTileSize()));
+		enemies[8]->setTileMap(map);
+
+		enemies[9] = new Item();
+		enemies[9]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[9]->setPosition(glm::vec2(90 * map->getTileSize(), 8 * map->getTileSize()));
+		enemies[9]->setTileMap(map);
+
+		enemies[10] = new Item();
+		enemies[10]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[10]->setPosition(glm::vec2(100 * map->getTileSize(), 12 * map->getTileSize()));
+		enemies[10]->setTileMap(map);
+
 
 		/*for (int e = 0; e < 3; ++e) {
 			enemies[e] = new Item();

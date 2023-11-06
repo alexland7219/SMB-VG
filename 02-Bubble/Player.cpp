@@ -389,7 +389,7 @@ void Player::update(int deltaTime)
 	}
 
 	// Change to star mario
-	if (allowChangeTimer <= 0 && (Game::instance().getKey('s') || Game::instance().getKey('S'))) {
+	if (allowChangeTimer <= 0 && Game::instance().getKey('s')) {
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
@@ -568,8 +568,8 @@ void Player::update(int deltaTime)
 	bool flagpole = false;
 	int flagX = 0;
 
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false, &flagpole, &flagX) || 
-		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 8), false)){
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 6), false, &flagpole, &flagX) || 
+		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 6), false)){
 		posPlayer.x -= vel.x;
 	} else if (flagpole){
 
