@@ -393,10 +393,13 @@ void Player::update(int deltaTime)
 		starMario = !starMario;
 		if (starMario) {
 			starTime = 12800;
+			Sound::instance().stop(7);
+			Sound::instance().stop(8);
 			Sound::instance().play(5); // Play star music
 		}
 		else {
 			Sound::instance().stop(5); // Stop only star music
+			Sound::instance().play(7);
 		}
 		//if (starMario && !bigMario) posPlayer.y -= 16;
 
