@@ -24,7 +24,7 @@ public:
 	void stopAll();
 
 private:
-	sf::Music musicVect[13];
+	sf::Music musicVect[17];
 };
 
 #endif //SOUND_INCLUDE

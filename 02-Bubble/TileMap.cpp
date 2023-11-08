@@ -258,6 +258,7 @@ bool TileMap::collisionMoveRight(const glm::vec2 &pos, const glm::ivec2 &size, b
 	x = (pos.x + size.x - 1) / tileSize;
 	y0 = pos.y / tileSize;
 	y1 = glm::min((pos.y + size.y - 1) / tileSize, 14.0f);
+	//cout << pos.y << "->" << y0 << " " << pos.y << "+" << size.y-1 << "->" << y1 << endl;
 
 	if (!isInsideScreen(x, y0) || !isInsideScreen(x, y1)) return false;
 

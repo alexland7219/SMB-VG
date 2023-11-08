@@ -10,7 +10,7 @@
 #define SCREEN_Y 0
 
 #define INIT_PLAYER_X_TILES 0
-#define INIT_PLAYER_Y_TILES 13
+#define INIT_PLAYER_Y_TILES (lvl==1 ? 13 : 11)
 #define SPAWN_DISTANCE 200
 
 Scene::Scene()
@@ -54,6 +54,7 @@ void Scene::init(int lvl)
 	gameOver = false;
 	won = false;
 	defPaused = false;
+	bowserplayed = false;
 
 	// Enemies initialization
 
@@ -145,17 +146,74 @@ void Scene::init(int lvl)
 	}
 	else if (lvl == 2)
 	{
-		// Ubicacions dels enemics en el nivell 2
+		// Ubicacions dels enemics en el nivell 1
 		enemies.clear();
-		enemies.resize(2);
-		for (int e = 0; e < 2; ++e) {
-			enemies[e] = new Item();
-			if (e == 0) enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1); // 1 = Koopa, 0 = Goomba
-			else enemies[e]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
-			enemies[e]->setPosition(glm::vec2(10 * map->getTileSize() + (e-1)*40, 10 * map->getTileSize()));
-			enemies[e]->setTileMap(map);
-		}
+		enemies.resize(13);
 
+		enemies[0] = new Item();
+		enemies[0]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[0]->setPosition(glm::vec2(6 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[0]->setTileMap(map);
+
+		enemies[1] = new Item();
+		enemies[1]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[1]->setPosition(glm::vec2(9 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[1]->setTileMap(map);
+
+		enemies[2] = new Item();
+		enemies[2]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[2]->setPosition(glm::vec2(24 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[2]->setTileMap(map);
+
+		enemies[3] = new Item();
+		enemies[3]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[3]->setPosition(glm::vec2(26 * map->getTileSize(), 12 * map->getTileSize()));
+		enemies[3]->setTileMap(map);
+
+		enemies[4] = new Item();
+		enemies[4]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[4]->setPosition(glm::vec2(31 * map->getTileSize(), 12 * map->getTileSize()));
+		enemies[4]->setTileMap(map);
+
+		enemies[5] = new Item();
+		enemies[5]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[5]->setPosition(glm::vec2(46 * map->getTileSize(), 10 * map->getTileSize()));
+		enemies[5]->setTileMap(map);
+
+		enemies[6] = new Item();
+		enemies[6]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[6]->setPosition(glm::vec2(49 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[6]->setTileMap(map);
+
+		enemies[7] = new Item();
+		enemies[7]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 1);
+		enemies[7]->setPosition(glm::vec2(54 * map->getTileSize(), 10 * map->getTileSize()));
+		enemies[7]->setTileMap(map);
+
+		enemies[8] = new Item();
+		enemies[8]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[8]->setPosition(glm::vec2(57 * map->getTileSize(), 11 * map->getTileSize()));
+		enemies[8]->setTileMap(map);
+
+		enemies[9] = new Item();
+		enemies[9]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[9]->setPosition(glm::vec2(69 * map->getTileSize(), 8 * map->getTileSize()));
+		enemies[9]->setTileMap(map);
+
+		enemies[10] = new Item();
+		enemies[10]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[10]->setPosition(glm::vec2(71 * map->getTileSize(), 8 * map->getTileSize()));
+		enemies[10]->setTileMap(map);
+
+		enemies[11] = new Item();
+		enemies[11]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[11]->setPosition(glm::vec2(73 * map->getTileSize(), 8 * map->getTileSize()));
+		enemies[11]->setTileMap(map);
+
+		enemies[12] = new Item();
+		enemies[12]->init(glm::vec2(SCREEN_X, SCREEN_Y), texProgram, 0);
+		enemies[12]->setPosition(glm::vec2(90 * map->getTileSize(), 13 * map->getTileSize()));
+		enemies[12]->setTileMap(map);
 	}
 
 	// Items initialization
@@ -168,8 +226,16 @@ void Scene::init(int lvl)
 
 	camera = glm::vec4(0.f, float(SCREEN_WIDTH - 1), float(SCREEN_HEIGHT - 1), 0.f);
 	projection = glm::ortho(camera.x, camera.y, camera.z, camera.w);
-
-	Sound::instance().play(7); // Play Main Theme
+	
+	Sound::instance().stopAll();
+	if (level == 1) {
+		Sound::instance().stop(15);
+		Sound::instance().play(7); // Play Main Theme
+	}
+	else {
+		Sound::instance().stop(7);
+		Sound::instance().play(15); //  Play second level theme
+	}
 
 	playerDeathStarted = false;
 	playerFlagpoleStarted = false;
@@ -240,11 +306,13 @@ int getFloatByPoints(int pts){
 void Scene::update(int deltaTime){
 	// Star
 	if (player->getStar() && !defPaused) {
-		Sound::instance().stop(7); // Stop main theme
+		if (level == 1) Sound::instance().stop(7); // Stop main theme
+		else Sound::instance().stop(15); // Stop second level theme
 		defPaused = true;
 	}
 	else if (!player->getStar() && defPaused && !playerFlagpoleStarted) {
-		Sound::instance().play(7); // Start main theme
+		if (level == 1) Sound::instance().play(7); // Start main theme
+		else Sound::instance().play(15); // Start second level theme theme 
 		defPaused = false;
 	}
 
@@ -311,14 +379,16 @@ void Scene::update(int deltaTime){
 
 	}
 
-	if (player->isDead()){
+	if (player->isDead()) {
 		// Game Over
+		bowserplayed = false;
 		gameOver = true;
 		return;
-	} 
-	else if (player->hasDeathAnimStarted())
+	}
+	else if (player->hasDeathAnimStarted()) {
 		Sound::instance().stop(7); // Stop main theme
-
+		Sound::instance().stop(15); // Stop second level theme	//	AIXO NO SE SI FA ALGO
+	}
 	glm::ivec2 playerPosAnt = player->getPosition();
 
 	// Update player
@@ -330,9 +400,8 @@ void Scene::update(int deltaTime){
 	if (player->hasWinningAnimStarted() && !playerFlagpoleStarted){
 		playerFlagpoleStarted = true;
 
-		Sound::instance().stop(7); // Stop main theme
-		Sound::instance().stop(8); // Stop zelda theme
-		Sound::instance().play(6); // Play win theme
+		Sound::instance().stopAll(); // Stop all songs
+		Sound::instance().play(6);  // Play win theme
 
 		int inc = getPtsFromFlagpole(playerPos.y);
 		points += inc;
@@ -414,7 +483,9 @@ void Scene::update(int deltaTime){
 			if (playerDeathStarted){
 				// Stop overworld songs
 				Sound::instance().stop(7);
+				Sound::instance().stop(15);
 				Sound::instance().stop(8);
+				Sound::instance().stop(16);
 			} 
 
 		} else if ((enemies[e]->collisionKill(playerPos, playerSize) || enemies[e]->collisionStomped(playerPos, playerSize)) && player->getStar()){
@@ -498,6 +569,22 @@ void Scene::update(int deltaTime){
 		Sound::instance().stop(7);
 		Sound::instance().play(8);
 	}
+
+	cout << (level == 2) << " " << (playerPos.x > 448) << " " << !bowserplayed << endl;
+	if (level == 2 && playerPos.x > 448 && !bowserplayed) {
+		Sound::instance().play(13);
+		bowserplayed = true;
+	}
+	if (level == 2) {
+		if (playerPos.x > 1424 && Sound::instance().getStatus(15) == 2) {
+			Sound::instance().stop(15);
+			Sound::instance().play(16);
+		}
+		else if (playerPos.x <= 1424 && Sound::instance().getStatus(16) == 2) {
+			Sound::instance().stop(16);
+			Sound::instance().play(15);
+		}
+	}
 }
 
 void Scene::render()
@@ -512,7 +599,8 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	texProgram.setUniformInt("invertX", 0); // False
 
-	glClearColor(.57f, 0.57f, 1.0f, 1.0f);
+	if (level == 1 || player->getPosition().x > 1424) glClearColor(0.57f, 0.57f, 1.0f, 1.0f);
+	else glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	bgmap->render();
 	map->render();

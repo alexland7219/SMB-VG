@@ -310,7 +310,7 @@ void Player::update(int deltaTime)
 		starTime -= deltaTime;
 		if (starTime <= 0) {
 			Sound::instance().stop(5); // Stop Star Music
-			Sound::instance().play(7);
+			//Sound::instance().play(7);
 			starMario = !starMario;
 		}
 	}
@@ -400,7 +400,7 @@ void Player::update(int deltaTime)
 		}
 		else {
 			Sound::instance().stop(5); // Stop only star music
-			Sound::instance().play(7);
+			//Sound::instance().play(7);
 		}
 		//if (starMario && !bigMario) posPlayer.y -= 16;
 
@@ -564,6 +564,7 @@ void Player::update(int deltaTime)
 		Sound::instance().stop(5); // Stop Star Music
 		Sound::instance().stop(7); // Stop background music
 		Sound::instance().stop(8);
+		Sound::instance().stop(15);
 		Sound::instance().play(1); // Start death musics
 	}
 
@@ -571,8 +572,8 @@ void Player::update(int deltaTime)
 	bool flagpole = false;
 	int flagX = 0;
 
-	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 6), false, &flagpole, &flagX) || 
-		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 6), false)){
+	if (map->collisionMoveRight(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 0), false, &flagpole, &flagX) || 
+		map->collisionMoveLeft(posPlayer, glm::ivec2(MARIO_WIDTH, MARIO_HEIGHT - 0), false)){
 		posPlayer.x -= vel.x;
 	} else if (flagpole){
 

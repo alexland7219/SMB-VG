@@ -62,7 +62,7 @@ private:
 
 	//sf::Music defaultMus, goombaMus, koopaMus, mushroomMus, winMus, zeldaMus;
 	// Plays Main theme (7), Goomba (9), Koopa (10), Mushroom (4), Win (6) and Zelda (8) songs
-	bool playerDeathStarted, playerFlagpoleStarted, defPaused;
+	bool playerDeathStarted, playerFlagpoleStarted, defPaused, bowserplayed;
 
 	int points, level, pointStreak, resetStreakCounter;
 	float remTime;
